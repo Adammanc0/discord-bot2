@@ -10,15 +10,13 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix="|", intents=intents)
 
+TEST_GUILD = discord.Object(id=1487086105479352501)
 
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
-    print("Synced global commands")
+    await bot.tree.sync(guild=TEST_GUILD)
+    print("Synced commands to test guild")
     print(f"Logged in as {bot.user}")
-
-
-       
 
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
@@ -27,19 +25,16 @@ async def hello(interaction: discord.Interaction):
 @bot.tree.command(name="burst", description="Send a custom message multiple times.")
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def burst(interaction: discord.Interaction, message: str, amount: int):
-    
+
     if amount > 20:
         await interaction.response.send_message("Maximum burst amount is 20.", ephemeral=True)
         return
 
-   
     await interaction.response.send_message(f"Sending burst of **{amount}** messages!", ephemeral=True)
 
-    
     for i in range(amount):
         await interaction.channel.send(message)
-        await asyncio.sleep(0.3)  
-
+        await asyncio.sleep(0.3)
 
 bot.run(os.getenv("TOKEN"))
 
