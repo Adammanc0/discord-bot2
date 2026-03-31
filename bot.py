@@ -7,7 +7,7 @@ import os
 import asyncio
 
 ADMIN_ID = 1106946860347834458
-BLACKLIST = set() 1452428519878557804
+BLACKLIST = set() 
 
 
 intents = discord.Intents.default()
