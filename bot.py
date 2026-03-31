@@ -1,4 +1,5 @@
 import discord
+import discord
 from discord import app_commands
 from discord.ext import commands
 import os
@@ -7,9 +8,10 @@ import asyncio
 
 ADMIN_ID = 1106946860347834458
 OWNER_SERVER_ID = 1487086105479352501
-BLACKLIST = set()                     
-
-
+BLACKLIST = set()                     # store blacklisted user IDs
+# -----------------------------
+# BOT SETUP
+# -----------------------------
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
@@ -17,18 +19,21 @@ intents.guilds = True
 bot = commands.Bot(command_prefix="|", intents=intents)
 
 
-
+# -----------------------------
+# PERMISSION SYSTEM (FIXED)
+# -----------------------------
 @bot.listen("on_interaction")
 async def permission_control(interaction: discord.Interaction):
 
-    
     if interaction.type != discord.InteractionType.application_command:
         return
 
     user_id = interaction.user.id
     guild = interaction.guild
 
-
+    # -----------------------------
+    # 1. BLACKLIST CHECK (ALWAYS FIRST)
+    # -----------------------------
     if user_id in BLACKLIST and user_id != ADMIN_ID:
         try:
             await interaction.response.send_message(
@@ -39,7 +44,9 @@ async def permission_control(interaction: discord.Interaction):
             pass
         return
 
-  
+    # -----------------------------
+    # 2. OWNER-ONLY MODE IN YOUR SERVER
+    # -----------------------------
     if guild and guild.id == OWNER_SERVER_ID:
         if user_id != ADMIN_ID:
             try:
@@ -51,7 +58,9 @@ async def permission_control(interaction: discord.Interaction):
                 pass
             return
 
-
+    # -----------------------------
+    # 3. OWNER-ONLY MODE IN DMs
+    # -----------------------------
     if guild is None:
         if user_id != ADMIN_ID:
             try:
@@ -64,14 +73,18 @@ async def permission_control(interaction: discord.Interaction):
             return
 
 
-
+# -----------------------------
+# BOT READY EVENT
+# -----------------------------
 @bot.event
 async def on_ready():
     await bot.tree.sync()
     print(f"Logged in as {bot.user}")
 
 
-
+# -----------------------------
+# NORMAL COMMANDS
+# -----------------------------
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello!")
@@ -95,7 +108,9 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         await asyncio.sleep(0.3)
 
 
-
+# -----------------------------
+# BLACKLIST COMMANDS (OWNER ONLY)
+# -----------------------------
 @bot.tree.command(name="blacklist_add", description="Add a user to the blacklist.")
 @app_commands.describe(user="The user to blacklist")
 async def blacklist_add(interaction: discord.Interaction, user: discord.User):
@@ -150,7 +165,9 @@ async def blacklist_list(interaction: discord.Interaction):
     )
 
 
-
+# -----------------------------
+# RUN BOT
+# -----------------------------
 bot.run(os.getenv("TOKEN"))
 
 
