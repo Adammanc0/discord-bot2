@@ -1,5 +1,4 @@
 import discord
-import discord
 from discord import app_commands
 from discord.ext import commands
 import os
@@ -7,8 +6,8 @@ import asyncio
 
 
 ADMIN_ID = 1106946860347834458
-OWNER_SERVER_ID = 1487086105479352501
-BLACKLIST = set()                     # store blacklisted user IDs
+BLACKLIST = set()             # store blacklisted user IDs
+
 # -----------------------------
 # BOT SETUP
 # -----------------------------
@@ -20,20 +19,17 @@ bot = commands.Bot(command_prefix="|", intents=intents)
 
 
 # -----------------------------
-# PERMISSION SYSTEM (FIXED)
+# GLOBAL BLACKLIST CHECK
 # -----------------------------
 @bot.listen("on_interaction")
-async def permission_control(interaction: discord.Interaction):
+async def blacklist_check(interaction: discord.Interaction):
 
     if interaction.type != discord.InteractionType.application_command:
         return
 
     user_id = interaction.user.id
-    guild = interaction.guild
 
-    # -----------------------------
-    # 1. BLACKLIST CHECK (ALWAYS FIRST)
-    # -----------------------------
+    # Block blacklisted users
     if user_id in BLACKLIST and user_id != ADMIN_ID:
         try:
             await interaction.response.send_message(
@@ -43,34 +39,6 @@ async def permission_control(interaction: discord.Interaction):
         except:
             pass
         return
-
-    # -----------------------------
-    # 2. OWNER-ONLY MODE IN YOUR SERVER
-    # -----------------------------
-    if guild and guild.id == OWNER_SERVER_ID:
-        if user_id != ADMIN_ID:
-            try:
-                await interaction.response.send_message(
-                    "Only the bot owner can use commands in this server.",
-                    ephemeral=True
-                )
-            except:
-                pass
-            return
-
-    # -----------------------------
-    # 3. OWNER-ONLY MODE IN DMs
-    # -----------------------------
-    if guild is None:
-        if user_id != ADMIN_ID:
-            try:
-                await interaction.response.send_message(
-                    "Only the bot owner can use commands in DMs.",
-                    ephemeral=True
-                )
-            except:
-                pass
-            return
 
 
 # -----------------------------
