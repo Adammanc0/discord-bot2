@@ -4,10 +4,6 @@ from discord.ext import commands
 import os
 import asyncio
 
-
-ADMIN_ID = 1106946860347834458
-BLACKLIST = set()
-
 # -----------------------------
 # BOT SETUP
 # -----------------------------
@@ -16,30 +12,6 @@ intents.message_content = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="|", intents=intents)
-
-
-# -----------------------------
-# GLOBAL BLACKLIST CHECK (WORKING VERSION)
-# -----------------------------
-@bot.listen("on_interaction")
-async def blacklist_check(interaction: discord.Interaction):
-
-    # Only block slash commands
-    if interaction.type != discord.InteractionType.application_command:
-        return
-
-    user_id = interaction.user.id
-
-    # If user is blacklisted, block them
-    if user_id in BLACKLIST and user_id != ADMIN_ID:
-        try:
-            await interaction.response.send_message(
-                "You are blacklisted from using this bot.",
-                ephemeral=True
-            )
-        except:
-            pass
-        return  # IMPORTANT: stops the command from running
 
 
 # -----------------------------
@@ -78,65 +50,9 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 
 
 # -----------------------------
-# BLACKLIST COMMANDS (OWNER ONLY)
-# -----------------------------
-@bot.tree.command(name="blacklist_add", description="Add a user to the blacklist.")
-@app_commands.describe(user="The user to blacklist")
-async def blacklist_add(interaction: discord.Interaction, user: discord.User):
-
-    if interaction.user.id != ADMIN_ID:
-        await interaction.response.send_message("Only the owner can use this command.", ephemeral=True)
-        return
-
-    BLACKLIST.add(user.id)
-    await interaction.response.send_message(
-        f"Added **{user}** to the blacklist.",
-        ephemeral=True
-    )
-
-
-@bot.tree.command(name="blacklist_remove", description="Remove a user from the blacklist.")
-@app_commands.describe(user="The user to unblacklist")
-async def blacklist_remove(interaction: discord.Interaction, user: discord.User):
-
-    if interaction.user.id != ADMIN_ID:
-        await interaction.response.send_message("Only the owner can use this command.", ephemeral=True)
-        return
-
-    if user.id in BLACKLIST:
-        BLACKLIST.remove(user.id)
-        await interaction.response.send_message(
-            f"Removed **{user}** from the blacklist.",
-            ephemeral=True
-        )
-    else:
-        await interaction.response.send_message(
-            "That user is not blacklisted.",
-            ephemeral=True
-        )
-
-
-@bot.tree.command(name="blacklist_list", description="Show all blacklisted users.")
-async def blacklist_list(interaction: discord.Interaction):
-
-    if interaction.user.id != ADMIN_ID:
-        await interaction.response.send_message("Only the owner can use this command.", ephemeral=True)
-        return
-
-    if not BLACKLIST:
-        await interaction.response.send_message("The blacklist is empty.", ephemeral=True)
-        return
-
-    users = "\n".join(f"- <@{uid}>" for uid in BLACKLIST)
-    await interaction.response.send_message(
-        f"**Blacklisted Users:**\n{users}",
-        ephemeral=True
-    )
-
-
-# -----------------------------
 # RUN BOT
 # -----------------------------
 bot.run(os.getenv("TOKEN"))
+
 
 
