@@ -1,13 +1,12 @@
-
-
 import discord
 from discord import app_commands
 from discord.ext import commands
 import os
 import asyncio
 
+
 ADMIN_ID = 1106946860347834458
-BLACKLIST = set() 
+BLACKLIST = set()  
 
 
 intents = discord.Intents.default()
@@ -16,24 +15,26 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix="|", intents=intents)
 
-# -----------------------------
-# GLOBAL BLACKLIST CHECK
-# -----------------------------
-@bot.tree.check
-async def global_blacklist_check(interaction: discord.Interaction):
-    return interaction.user.id not in BLACKLIST
 
-@bot.tree.error
-async def on_app_command_error(interaction: discord.Interaction, error):
-    if isinstance(error, app_commands.CheckFailure):
-        await interaction.response.send_message(
-            "You are blacklisted from using this bot.",
-            ephemeral=True
-        )
+
+@bot.listen("on_interaction")
+async def check_blacklist(interaction: discord.Interaction):
+    if interaction.type == discord.InteractionType.application_command:
+        if interaction.user.id in BLACKLIST:
+            try:
+                await interaction.response.send_message(
+                    "You are blacklisted from using this bot.",
+                    ephemeral=True
+                )
+            except:
+                pass
+            raise Exception("User is blacklisted")
+
 
 
 def is_admin(interaction: discord.Interaction):
     return interaction.user.id == ADMIN_ID
+
 
 
 @bot.event
@@ -42,9 +43,11 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
 
 
+
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello!")
+
 
 @bot.tree.command(name="burst", description="Send a custom message multiple times.")
 @app_commands.describe(message="The message to send", amount="How many times to send it")
@@ -64,6 +67,7 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         await asyncio.sleep(0.3)
 
 
+
 @bot.tree.command(name="blacklist_add", description="Add a user to the blacklist.")
 @app_commands.describe(user="The user to blacklist")
 async def blacklist_add(interaction: discord.Interaction, user: discord.User):
@@ -77,6 +81,7 @@ async def blacklist_add(interaction: discord.Interaction, user: discord.User):
         f"Added **{user}** to the blacklist.",
         ephemeral=True
     )
+
 
 @bot.tree.command(name="blacklist_remove", description="Remove a user from the blacklist.")
 @app_commands.describe(user="The user to unblacklist")
@@ -98,6 +103,7 @@ async def blacklist_remove(interaction: discord.Interaction, user: discord.User)
             ephemeral=True
         )
 
+
 @bot.tree.command(name="blacklist_list", description="Show all blacklisted users.")
 async def blacklist_list(interaction: discord.Interaction):
 
@@ -116,4 +122,6 @@ async def blacklist_list(interaction: discord.Interaction):
     )
 
 
+
 bot.run(os.getenv("TOKEN"))
+
