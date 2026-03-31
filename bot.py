@@ -23,13 +23,22 @@ async def on_ready():
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello!")
 
-@bot.tree.command(name="burst", description="Send a message 5 times")
-@app_commands.describe(text="The message you want to repeat")
-async def burst(interaction: discord.Interaction, text: str):
-    for i in range(5):
-        await interaction.channel.send(text)
-        await asyncio.sleep(1)
-    await interaction.response.send_message("Burst complete!", ephemeral=True)
+@bot.tree.command(name="burst", description="Send a custom message multiple times.")
+@app_commands.describe(message="The message to send", amount="How many times to send it")
+async def burst(interaction: discord.Interaction, message: str, amount: int):
+    
+    if amount > 20:
+        await interaction.response.send_message("Maximum burst amount is 20.", ephemeral=True)
+        return
+
+   
+    await interaction.response.send_message(f"Sending burst of **{amount}** messages!", ephemeral=True)
+
+    
+    for i in range(amount):
+        await interaction.channel.send(message)
+        await asyncio.sleep(0.3)  
+
 
 bot.run(os.getenv("TOKEN"))
 
