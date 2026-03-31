@@ -20,11 +20,12 @@ bot = commands.Bot(command_prefix="|", intents=intents)
 @bot.listen("on_interaction")
 async def owner_only_in_server(interaction: discord.Interaction):
 
-   
+    # Only apply to slash commands
     if interaction.type != discord.InteractionType.application_command:
         return
 
-       if interaction.guild and interaction.guild.id == OWNER_SERVER_ID:
+    # If command is used inside YOUR server
+    if interaction.guild and interaction.guild.id == OWNER_SERVER_ID:
         if interaction.user.id != ADMIN_ID:
             try:
                 await interaction.response.send_message(
@@ -35,7 +36,7 @@ async def owner_only_in_server(interaction: discord.Interaction):
                 pass
             return
 
- 
+    # If command is used in DMs
     if interaction.guild is None:
         if interaction.user.id != ADMIN_ID:
             try:
@@ -46,6 +47,7 @@ async def owner_only_in_server(interaction: discord.Interaction):
             except:
                 pass
             return
+
 
 
 
