@@ -10,14 +10,15 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix="|", intents=intents)
 
-GUILD_ID = 1487086105479352501
 
 @bot.event
 async def on_ready():
-    guild = discord.Object(id=GUILD_ID)
-    await bot.tree.sync(guild=guild)
-    print(f"Synced commands to guild {GUILD_ID}")
+    await bot.tree.sync()
+    print("Synced global commands")
     print(f"Logged in as {bot.user}")
+
+
+       
 
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
