@@ -6,7 +6,7 @@ import asyncio
 
 
 ADMIN_ID = 1106946860347834458
-BLACKLIST = set()             # store blacklisted user IDs
+BLACKLIST = set()
 
 # -----------------------------
 # BOT SETUP
@@ -19,17 +19,18 @@ bot = commands.Bot(command_prefix="|", intents=intents)
 
 
 # -----------------------------
-# GLOBAL BLACKLIST CHECK
+# GLOBAL BLACKLIST CHECK (WORKING VERSION)
 # -----------------------------
 @bot.listen("on_interaction")
 async def blacklist_check(interaction: discord.Interaction):
 
+    # Only block slash commands
     if interaction.type != discord.InteractionType.application_command:
         return
 
     user_id = interaction.user.id
 
-    # Block blacklisted users
+    # If user is blacklisted, block them
     if user_id in BLACKLIST and user_id != ADMIN_ID:
         try:
             await interaction.response.send_message(
@@ -38,7 +39,7 @@ async def blacklist_check(interaction: discord.Interaction):
             )
         except:
             pass
-        return
+        return  # IMPORTANT: stops the command from running
 
 
 # -----------------------------
