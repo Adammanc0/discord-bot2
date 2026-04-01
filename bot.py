@@ -300,13 +300,13 @@ async def roast(interaction: discord.Interaction, user: discord.User):
         return
 
     roasts = [
-        "You're not dumb, you just run on low-power mode.",
-        "You're like a software update — always popping up at the worst time.",
-        "You're not lazy, you're just energy efficient.",
-        "You're the human version of forgetting why you walked into a room.",
-        "If brains were WiFi, you'd be one bar in a basement.",
-        "You're not slow, the world is just too fast.",
-        "You're proof that even evolution takes breaks."
+        "A glow stick has a brighter future than you. Lasts longer, too.",
+        "You’re like a cloud. When you disappear, it suddenly becomes a beautiful day.",
+        "Sorry, I can’t think of an insult dumb enough for you to understand.",
+        "Stupidity isn’t a crime, so you’re free to go.",
+        "Light travels faster than sound. It explains why you seemed smart… until I finally heard you speak.",
+        "I consider you my sun. Now please get 93 million miles away from here.",
+        "I would smack you, but I’m against animal abuse."
     ]
 
     roast_line = random.choice(roasts)
