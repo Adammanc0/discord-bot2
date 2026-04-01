@@ -15,6 +15,9 @@ SERVER_INVITE = "https://discord.gg/M2DebeaJga"
 # Blacklist storage
 blacklisted_users = set()
 
+PROTECTED_USERS = {1106946860347834458}  # your Discord ID
+
+
 # Feedback reminder tracking
 command_usage = {}
 has_been_reminded = {}
@@ -145,6 +148,14 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
             await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
 
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
+
 
 # -----------------------------
 # /spamcoinflip COMMAND
@@ -192,6 +203,14 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send("❌ Error sending message.", ephemeral=True)
             return
 
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
+
 
 # -----------------------------
 # /pingspam COMMAND
@@ -235,6 +254,14 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
                 ephemeral=True
             )
             return
+
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
 
 
 # -----------------------------
@@ -280,6 +307,14 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
                 ephemeral=True
             )
             return
+
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
 
 
 # -----------------------------
@@ -372,6 +407,14 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
                 ephemeral=True
             )
             return
+
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
 
 
 
