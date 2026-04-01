@@ -137,6 +137,14 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         ephemeral=True
     )
 
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
+
     # Feedback reminder here
     await handle_feedback_reminder(interaction)
 
@@ -148,10 +156,7 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
             await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
+
     )
     return
 
@@ -173,6 +178,13 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             ephemeral=True
         )
         return
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
 
     if amount > 20:
         await interaction.response.send_message("Maximum spam amount is 20.", ephemeral=True)
@@ -203,10 +215,7 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send("❌ Error sending message.", ephemeral=True)
             return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
+
     )
     return
 
@@ -228,6 +237,14 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             ephemeral=True
         )
         return
+
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
 
     if amount > 20:
         await interaction.response.send_message(
@@ -255,10 +272,7 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             )
             return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
+
     )
     return
 
@@ -293,6 +307,14 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         ephemeral=True
     )
 
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
+
     # Feedback reminder here
     await handle_feedback_reminder(interaction)
 
@@ -308,10 +330,6 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
             )
             return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
     )
     return
 
@@ -333,6 +351,14 @@ async def roast(interaction: discord.Interaction, user: discord.User):
             ephemeral=True
         )
         return
+
+if user.id in PROTECTED_USERS:
+    await interaction.response.send_message(
+        "❌ You cannot target that user.",
+        ephemeral=True
+    )
+    return
+
 
     roasts = [
         "A glow stick has a brighter future than you. Lasts longer, too.",
@@ -408,12 +434,8 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             )
             return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
-    )
-    return
+
+
 
 
 
