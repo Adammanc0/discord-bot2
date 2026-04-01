@@ -114,49 +114,52 @@ async def hello(interaction: discord.Interaction):
 # -----------------------------
 # /burst COMMAND
 # -----------------------------
-@bot.tree.command(name="burst", description="Send a custom message multiple times.")
+@bot.tree.command(name="spam", description="Spam a message multiple times.")
 @app_commands.describe(message="The message to send", amount="How many times to send it")
-async def burst(interaction: discord.Interaction, message: str, amount: int):
+async def spam(interaction: discord.Interaction, message: str, amount: int, user: discord.User):
 
-# Inside your spam command (this must be inside async def spam(...))
-
-if await check_blacklist(interaction):
-    return
-
-if is_in_blocked_server(interaction):
-    await interaction.response.send_message(
-        "❌ Commands cannot be used inside my server.",
-        ephemeral=True
-    )
-    return
-
-if amount > 20:
-    await interaction.response.send_message(
-        "Maximum burst amount is 20.",
-        ephemeral=True
-    )
-    return
-
-# PROTECTED USER CHECK — must be inside the command
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
-    )
-    return
-
-# Feedback reminder
-await handle_feedback_reminder(interaction)
-
-for i in range(amount):
-    try:
-        await interaction.followup.send(message)
-        await asyncio.sleep(0.3)
-    except:
-        await interaction.followup.send("❌ Error sending", ephemeral=True)
+    # Blacklist check
+    if await check_blacklist(interaction):
         return
 
-return
+    # Blocked server check
+    if is_in_blocked_server(interaction):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    # Amount limit
+    if amount > 20:
+        await interaction.response.send_message(
+            "Maximum burst amount is 20.",
+            ephemeral=True
+        )
+        return
+
+    # Protected user check
+    if user.id in PROTECTED_USERS:
+        await interaction.response.send_message(
+            "❌ You cannot target that user.",
+            ephemeral=True
+        )
+        return
+
+    # Feedback reminder
+    await handle_feedback_reminder(interaction)
+
+    # Spam loop
+    for i in range(amount):
+        try:
+            await interaction.followup.send(message)
+            await asyncio.sleep(0.3)
+        except:
+            await interaction.followup.send("❌ Error sending", ephemeral=True)
+            return
+
+    return
+
 
 
 
