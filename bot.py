@@ -1,3 +1,4 @@
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -288,13 +289,13 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         )
         return
 
-     roasts = [
+    roasts = [
         "A glow stick has a brighter future than you. Lasts longer, too.",
         "You’re like a cloud. When you disappear, it suddenly becomes a beautiful day.",
         "Sorry, I can’t think of an insult dumb enough for you to understand.",
         "Stupidity isn’t a crime, so you’re free to go.",
         "Light travels faster than sound. It explains why you seemed smart… until I finally heard you speak.",
-        " I consider you my sun. Now please get 93 million miles away from here.",
+        "I consider you my sun. Now please get 93 million miles away from here.",
         "I would smack you, but I’m against animal abuse."
     ]
 
@@ -455,7 +456,6 @@ async def blacklistlist(interaction: discord.Interaction):
 # START BOT
 # -----------------------------
 bot.run(os.getenv("TOKEN"))
-
 
 
 
