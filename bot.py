@@ -8,7 +8,7 @@ import asyncio
 # CONFIG
 # -----------------------------
 REQUIRED_GUILD_ID = 1487086105479352501
-SERVER_INVITE = https://discord.gg/M2DebeaJga
+SERVER_INVITE = "https://discord.gg/M2DebeaJga"
 
 intents = discord.Intents.default()
 intents.message_content = True
