@@ -146,19 +146,19 @@ if user.id in PROTECTED_USERS:
 
 
     # Feedback reminder here
-    await handle_feedback_reminder(interaction)
+# Feedback reminder here
+await handle_feedback_reminder(interaction)
 
-    for i in range(amount):
-        try:
-            await interaction.followup.send(message)
-            await asyncio.sleep(0.3)
-        except:
-            await interaction.followup.send("❌ Error sending", ephemeral=True)
-            return
+for i in range(amount):
+    try:
+        await interaction.followup.send(message)
+        await asyncio.sleep(0.3)
+    except:
+        await interaction.followup.send("❌ Error sending", ephemeral=True)
+        return
 
+return
 
-    )
-    return
 
 
 
