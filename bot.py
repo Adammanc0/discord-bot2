@@ -17,20 +17,14 @@ blacklisted_users = set()
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
-intents.members = True  # REQUIRED for membership checks
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 
 # -----------------------------
-# CHECK IF USER IS IN REQUIRED SERVER
+# CHECK IF COMMAND IS USED INSIDE YOUR SERVER
 # -----------------------------
-async def is_member_of_required_guild(user_id: int) -> bool:
-    guild = bot.get_guild(REQUIRED_GUILD_ID)
-    if guild is None:
-        return False
-
-    member = guild.get_member(user_id)
-    return member is not None
+def is_in_blocked_server(interaction: discord.Interaction) -> bool:
+    return interaction.guild is not None and interaction.guild.id == REQUIRED_GUILD_ID
 
 
 # -----------------------------
@@ -65,8 +59,8 @@ async def hello(interaction: discord.Interaction):
     if await check_blacklist(interaction):
         return
 
-    # BLOCK users who ARE in your server
-    if await is_member_of_required_guild(interaction.user.id):
+    # BLOCK commands inside your server
+    if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
@@ -87,8 +81,8 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
     if await check_blacklist(interaction):
         return
 
-    # BLOCK users who ARE in your server
-    if await is_member_of_required_guild(interaction.user.id):
+    # BLOCK commands inside your server
+    if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
@@ -124,8 +118,8 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
     if await check_blacklist(interaction):
         return
 
-    # BLOCK users who ARE in your server
-    if await is_member_of_required_guild(interaction.user.id):
+    # BLOCK commands inside your server
+    if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
@@ -242,6 +236,7 @@ async def blacklistlist(interaction: discord.Interaction):
 # START BOT
 # -----------------------------
 bot.run(os.getenv("TOKEN"))
+
 
 
 
