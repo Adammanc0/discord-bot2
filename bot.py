@@ -361,9 +361,11 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
 @app_commands.describe(user="The user to roast")
 async def roast(interaction: discord.Interaction, user: discord.User):
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
+    # Blocked server check
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -371,13 +373,13 @@ async def roast(interaction: discord.Interaction, user: discord.User):
         )
         return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
-    )
-    return
-
+    # PROTECTED USER CHECK — must be inside the function
+    if user.id in PROTECTED_USERS:
+        await interaction.response.send_message(
+            "❌ You cannot target that user.",
+            ephemeral=True
+        )
+        return
 
     roasts = [
         "A glow stick has a brighter future than you. Lasts longer, too.",
@@ -395,8 +397,9 @@ if user.id in PROTECTED_USERS:
         f"{user.mention}\n{roast_line}"
     )
 
-    # Feedback reminder here
+    # Feedback reminder
     await handle_feedback_reminder(interaction)
+
 
 
 # -----------------------------
