@@ -10,6 +10,12 @@ import asyncio
 REQUIRED_GUILD_ID = 1487086105479352501
 SERVER_INVITE = "https://discord.gg/M2DebeaJga"
 
+# -----------------------------
+# BLACKLIST SYSTEM
+# -----------------------------
+blacklisted_users = set()  
+
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
