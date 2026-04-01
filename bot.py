@@ -93,8 +93,9 @@ async def on_ready():
         cmd.default_member_permissions = None  # IMPORTANT for DM visibility
 
     # Force a global sync
-    synced = await bot.tree.sync()
-    print(f"Synced {len(synced)} commands globally.")
+synced = await bot.tree.sync()
+print(f"Synced {len(synced)} commands globally.")
+
 
 
 
