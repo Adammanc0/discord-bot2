@@ -118,7 +118,6 @@ async def hello(interaction: discord.Interaction):
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def spam(interaction: discord.Interaction, message: str, amount: int):
 
-
     # Blacklist check
     if await check_blacklist(interaction):
         return
@@ -139,13 +138,11 @@ async def spam(interaction: discord.Interaction, message: str, amount: int):
         )
         return
 
-    # Protected user check
-    if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
-            "❌ You cannot target that user.",
-            ephemeral=True
-        )
-        return
+    # Initial response
+    await interaction.response.send_message(
+        f"Sending your message {amount} times!",
+        ephemeral=True
+    )
 
     # Feedback reminder
     await handle_feedback_reminder(interaction)
@@ -160,6 +157,7 @@ async def spam(interaction: discord.Interaction, message: str, amount: int):
             return
 
     return
+
 
 
 
