@@ -148,9 +148,9 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 
 
 # -----------------------------
-# /reactspam COMMAND
+# /reactspam COMMAND (FIXED)
 # -----------------------------
-@bot.tree.command(name="reactspam", description="Spam reactions on your message.")
+@bot.tree.command(name="reactspam", description="Spam reactions on a bot message.")
 @app_commands.describe(emoji="Emoji to react with", amount="How many reactions to add")
 async def reactspam(interaction: discord.Interaction, emoji: str, amount: int):
 
@@ -178,23 +178,19 @@ async def reactspam(interaction: discord.Interaction, emoji: str, amount: int):
         )
         return
 
+    # Send a normal message to react to
     await interaction.response.send_message(
-        f"Reacting {amount} times with {emoji}!",
-        ephemeral=True
+        f"Reacting {amount} times with {emoji}...",
+        ephemeral=False
     )
 
-    try:
-        message = await interaction.channel.fetch_message(interaction.id)
-    except:
-        await interaction.followup.send(
-            "❌ Could not find your message to react to.",
-            ephemeral=True
-        )
-        return
+    # Fetch the bot's own message
+    sent_message = await interaction.original_response()
 
+    # Reaction loop
     for i in range(amount):
         try:
-            await message.add_reaction(emoji)
+            await sent_message.add_reaction(emoji)
             await asyncio.sleep(0.2)
         except:
             await interaction.followup.send(
