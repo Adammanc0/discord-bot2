@@ -71,8 +71,8 @@ async def hello(interaction: discord.Interaction):
 # -----------------------------
 # /burst COMMAND
 # -----------------------------
-@bot.tree.command(name="burst", description="Send a custom message multiple times max 5.")
-@app_commands.describe(message="The message to send", amount="How many times to send it max 5")
+@bot.tree.command(name="burst", description="Send a custom message multiple times.")
+@app_commands.describe(message="The message to send", amount="How many times to send it")
 async def burst(interaction: discord.Interaction, message: str, amount: int):
 
     if await check_blacklist(interaction):
@@ -85,8 +85,8 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         )
         return
 
-    if amount > 5:
-        await interaction.response.send_message("Maximum burst amount is 5.", ephemeral=True)
+    if amount > 20:
+        await interaction.response.send_message("Maximum burst amount is 20.", ephemeral=True)
         return
 
     await interaction.response.send_message(
@@ -106,8 +106,8 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 # -----------------------------
 # /spamcoinflip COMMAND
 # -----------------------------
-@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message max 5.")
-@app_commands.describe(message="The message to send", amount="How many times to send it max 5")
+@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
+@app_commands.describe(message="The message to send", amount="How many times to send it")
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
 
     if await check_blacklist(interaction):
@@ -120,8 +120,8 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         )
         return
 
-    if amount > 5:
-        await interaction.response.send_message("Maximum spam amount is 5.", ephemeral=True)
+    if amount > 20:
+        await interaction.response.send_message("Maximum spam amount is 20.", ephemeral=True)
         return
 
     result = random.choice(["heads", "tails"])
@@ -150,8 +150,8 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 # -----------------------------
 # /pingspam COMMAND
 # -----------------------------
-@bot.tree.command(name="spamping", description="Spam ping a user max 5 times.")
-@app_commands.describe(user="The user to ping", amount="How many times to ping them max 5")
+@bot.tree.command(name="pingspam", description="Spam ping a user multiple times.")
+@app_commands.describe(user="The user to ping", amount="How many times to ping them")
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
     if await check_blacklist(interaction):
@@ -164,9 +164,9 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         )
         return
 
-    if amount > 5:
+    if amount > 20:
         await interaction.response.send_message(
-            "Maximum ping spam amount is 5.",
+            "Maximum ping spam amount is 20.",
             ephemeral=True
         )
         return
@@ -189,10 +189,10 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 
 
 # -----------------------------
-# /ghostping COMMAND (NEW)
+# /ghostpingspam COMMAND
 # -----------------------------
-@bot.tree.command(name="ghostping", description="Ping a user repeatedly and delete the messages instantly max 5.")
-@app_commands.describe(user="The user to ghost ping max 5", amount="How many times to ghost ping them")
+@bot.tree.command(name="ghostpingspam", description="Ping a user repeatedly and delete the messages instantly.")
+@app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
     if await check_blacklist(interaction):
@@ -205,9 +205,9 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         )
         return
 
-    if amount > 5:
+    if amount > 20:
         await interaction.response.send_message(
-            "Maximum ghost ping amount is 5.",
+            "Maximum ghost ping amount is 20.",
             ephemeral=True
         )
         return
@@ -229,18 +229,17 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
             )
             return
 
-# -----------------------------
-# /roast COMMAND (NEW)
-# -----------------------------
-@bot.tree.command(name="roastspam", description="Spam harmless roasts at a user.")
-@app_commands.describe(user="The user to roast", amount="How many times to roast them")
-async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
-    # Blacklist check
+# -----------------------------
+# /roast COMMAND
+# -----------------------------
+@bot.tree.command(name="roast", description="Send a playful, harmless roast to a user.")
+@app_commands.describe(user="The user to roast")
+async def roast(interaction: discord.Interaction, user: discord.User):
+
     if await check_blacklist(interaction):
         return
 
-    # Block inside your server
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -248,16 +247,48 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         )
         return
 
-    # Limit
-    if amount > 5:
+    roasts = [
+        "You're not dumb, you just run on low-power mode.",
+        "You're like a software update — always popping up at the worst time.",
+        "You're not lazy, you're just energy efficient.",
+        "You're the human version of forgetting why you walked into a room.",
+        "If brains were WiFi, you'd be one bar in a basement.",
+        "You're not slow, the world is just too fast.",
+        "You're proof that even evolution takes breaks."
+    ]
+
+    roast_line = random.choice(roasts)
+
+    await interaction.response.send_message(
+        f"{user.mention}\n{roast_line}"
+    )
+
+
+# -----------------------------
+# /roastspam COMMAND
+# -----------------------------
+@bot.tree.command(name="roastspam", description="Spam harmless roasts at a user.")
+@app_commands.describe(user="The user to roast", amount="How many times to roast them")
+async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
+
+    if await check_blacklist(interaction):
+        return
+
+    if is_in_blocked_server(interaction):
         await interaction.response.send_message(
-            "Maximum roast spam amount is 5.",
+            "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Harmless, playful roasts
-    roasts = [
+    if amount > 20:
+        await interaction.response.send_message(
+            "Maximum roast spam amount is 20.",
+            ephemeral=True
+        )
+        return
+
+     roasts = [
         "A glow stick has a brighter future than you. Lasts longer, too.",
         "You’re like a cloud. When you disappear, it suddenly becomes a beautiful day.",
         "Sorry, I can’t think of an insult dumb enough for you to understand.",
@@ -272,7 +303,6 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         ephemeral=True
     )
 
-    # Spam loop
     for i in range(amount):
         roast_line = random.choice(roasts)
         try:
@@ -286,6 +316,62 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             return
 
 
+# -----------------------------
+# /randomping COMMAND (NEW)
+# -----------------------------
+@bot.tree.command(name="randomping", description="Ping random users in the server.")
+@app_commands.describe(amount="How many random pings to send")
+async def randomping(interaction: discord.Interaction, amount: int):
+
+    if await check_blacklist(interaction):
+        return
+
+    if is_in_blocked_server(interaction):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    if amount > 20:
+        await interaction.response.send_message(
+            "Maximum random ping amount is 20.",
+            ephemeral=True
+        )
+        return
+
+    if interaction.guild is None:
+        await interaction.response.send_message(
+            "❌ This command only works in servers.",
+            ephemeral=True
+        )
+        return
+
+    members = [m for m in interaction.guild.members if not m.bot]
+
+    if not members:
+        await interaction.response.send_message(
+            "❌ No users available to ping.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        f"Pinging random users {amount} times...",
+        ephemeral=True
+    )
+
+    for i in range(amount):
+        random_user = random.choice(members)
+        try:
+            await interaction.followup.send(random_user.mention)
+            await asyncio.sleep(0.3)
+        except:
+            await interaction.followup.send(
+                "❌ Error sending random ping.",
+                ephemeral=True
+            )
+            return
 
 
 # -----------------------------
