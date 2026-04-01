@@ -55,11 +55,9 @@ async def on_ready():
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
 
-    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # BLOCK commands inside your server
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -77,11 +75,9 @@ async def hello(interaction: discord.Interaction):
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def burst(interaction: discord.Interaction, message: str, amount: int):
 
-    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # BLOCK commands inside your server
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -114,11 +110,9 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
 
-    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # BLOCK commands inside your server
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -130,7 +124,6 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         await interaction.response.send_message("Maximum spam amount is 20.", ephemeral=True)
         return
 
-    # Flip the coin
     result = random.choice(["heads", "tails"])
 
     if result == "tails":
@@ -140,7 +133,6 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         )
         return
 
-    # Heads → spam
     await interaction.response.send_message(
         f"🪙 Coinflip: **Heads** — Spamming {amount} messages!",
         ephemeral=True
@@ -152,6 +144,63 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await asyncio.sleep(0.3)
         except:
             await interaction.followup.send("❌ Error sending message.", ephemeral=True)
+            return
+
+
+# -----------------------------
+# /reactspam COMMAND
+# -----------------------------
+@bot.tree.command(name="reactspam", description="Spam reactions on your message.")
+@app_commands.describe(emoji="Emoji to react with", amount="How many reactions to add")
+async def reactspam(interaction: discord.Interaction, emoji: str, amount: int):
+
+    if await check_blacklist(interaction):
+        return
+
+    if is_in_blocked_server(interaction):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    if interaction.guild is None:
+        await interaction.response.send_message(
+            "❌ Reaction spam only works inside servers.",
+            ephemeral=True
+        )
+        return
+
+    if amount > 20:
+        await interaction.response.send_message(
+            "Maximum reaction spam amount is 20.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        f"Reacting {amount} times with {emoji}!",
+        ephemeral=True
+    )
+
+    try:
+        message = await interaction.channel.fetch_message(interaction.id)
+    except:
+        await interaction.followup.send(
+            "❌ Could not find your message to react to.",
+            ephemeral=True
+        )
+        return
+
+    for i in range(amount):
+        try:
+            await message.add_reaction(emoji)
+            await asyncio.sleep(0.2)
+        except:
+            await interaction.followup.send(
+                "❌ Failed to add reaction.",
+                ephemeral=True
+            )
             return
 
 
@@ -236,6 +285,7 @@ async def blacklistlist(interaction: discord.Interaction):
 # START BOT
 # -----------------------------
 bot.run(os.getenv("TOKEN"))
+
 
 
 
