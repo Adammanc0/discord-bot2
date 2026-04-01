@@ -7,7 +7,7 @@ import asyncio
 # -----------------------------
 # CONFIG
 # -----------------------------
-REQUIRED_GUILD_ID = 1487086105479352501
+REQUIRED_GUILD_ID = 1325263850173990942
 SERVER_INVITE = "https://discord.gg/bwMg2mUD"
 
 # Blacklist storage
