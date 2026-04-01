@@ -148,11 +148,11 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 
 
 # -----------------------------
-# /reactspam COMMAND (FIXED)
+# /pingspam COMMAND (NEW)
 # -----------------------------
-@bot.tree.command(name="reactspam", description="Spam reactions on a bot message.")
-@app_commands.describe(emoji="Emoji to react with", amount="How many reactions to add")
-async def reactspam(interaction: discord.Interaction, emoji: str, amount: int):
+@bot.tree.command(name="pingspam", description="Spam ping a user multiple times.")
+@app_commands.describe(user="The user to ping", amount="How many times to ping them")
+async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
     if await check_blacklist(interaction):
         return
@@ -164,37 +164,25 @@ async def reactspam(interaction: discord.Interaction, emoji: str, amount: int):
         )
         return
 
-    if interaction.guild is None:
-        await interaction.response.send_message(
-            "❌ Reaction spam only works inside servers.",
-            ephemeral=True
-        )
-        return
-
     if amount > 20:
         await interaction.response.send_message(
-            "Maximum reaction spam amount is 20.",
+            "Maximum ping spam amount is 20.",
             ephemeral=True
         )
         return
 
-    # Send a normal message to react to
     await interaction.response.send_message(
-        f"Reacting {amount} times with {emoji}...",
-        ephemeral=False
+        f"Pinging {user.mention} {amount} times!",
+        ephemeral=True
     )
 
-    # Fetch the bot's own message
-    sent_message = await interaction.original_response()
-
-    # Reaction loop
     for i in range(amount):
         try:
-            await sent_message.add_reaction(emoji)
-            await asyncio.sleep(0.2)
+            await interaction.followup.send(user.mention)
+            await asyncio.sleep(0.3)
         except:
             await interaction.followup.send(
-                "❌ Failed to add reaction.",
+                "❌ Error sending ping.",
                 ephemeral=True
             )
             return
