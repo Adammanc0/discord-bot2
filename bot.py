@@ -456,6 +456,54 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             return
 
 
+# -----------------------------
+# /dmtroll COMMAND
+# -----------------------------
+@bot.tree.command(name="dmtroll", description="Send a fake spam DM (for fun trolling).")
+@app_commands.describe(user="The user to DM")
+async def dmtroll(interaction: discord.Interaction, user: discord.User):
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # Protected user check
+    if user.id in PROTECTED_USERS:
+        await interaction.response.send_message(
+            "❌ You cannot target that user.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        f"😈 Sending a totally real and serious message to {user.mention}...",
+        ephemeral=True
+    )
+
+    messages = [
+        "HEY",
+        "HEY YOU",
+        "READ THIS NOW",
+        "THIS IS IMPORTANT",
+        "...",
+        "you just got trolled 😂"
+    ]
+
+    try:
+        for msg in messages:
+            await user.send(msg)
+            await asyncio.sleep(1)
+    except:
+        await interaction.followup.send(
+            "❌ Couldn't DM that user (they probably have DMs closed).",
+            ephemeral=True
+        )
+        return
+
+    # Feedback reminder
+    await handle_feedback_reminder(interaction)
+
+
 
 
 
