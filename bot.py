@@ -118,25 +118,26 @@ async def hello(interaction: discord.Interaction):
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def burst(interaction: discord.Interaction, message: str, amount: int):
 
-    if await check_blacklist(interaction):
-        return
+# Inside your spam command (this must be inside async def spam(...))
 
-    if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
-        )
-        return
+if await check_blacklist(interaction):
+    return
 
-    if amount > 20:
-        await interaction.response.send_message("Maximum burst amount is 20.", ephemeral=True)
-        return
-
+if is_in_blocked_server(interaction):
     await interaction.response.send_message(
-        f"Sending burst of {amount} messages!",
+        "❌ Commands cannot be used inside my server.",
         ephemeral=True
     )
+    return
 
+if amount > 20:
+    await interaction.response.send_message(
+        "Maximum burst amount is 20.",
+        ephemeral=True
+    )
+    return
+
+# PROTECTED USER CHECK — must be inside the command
 if user.id in PROTECTED_USERS:
     await interaction.response.send_message(
         "❌ You cannot target that user.",
@@ -144,9 +145,7 @@ if user.id in PROTECTED_USERS:
     )
     return
 
-
-    # Feedback reminder here
-# Feedback reminder here
+# Feedback reminder
 await handle_feedback_reminder(interaction)
 
 for i in range(amount):
@@ -158,6 +157,7 @@ for i in range(amount):
         return
 
 return
+
 
 
 
