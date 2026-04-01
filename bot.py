@@ -191,7 +191,7 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 # -----------------------------
 # /ghostping COMMAND (NEW)
 # -----------------------------
-@bot.tree.command(name="ghostping", description="Ping a user repeatedly and delete the messages instantly.")
+@bot.tree.command(name="ghostping", description="Ping a user repeatedly and delete the messages instantly max 5.")
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
@@ -205,9 +205,9 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         )
         return
 
-    if amount > 20:
+    if amount > 5:
         await interaction.response.send_message(
-            "Maximum ghost ping amount is 20.",
+            "Maximum ghost ping amount is 5.",
             ephemeral=True
         )
         return
