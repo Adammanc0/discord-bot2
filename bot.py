@@ -156,7 +156,7 @@ for i in range(amount):
     except:
         await interaction.followup.send("❌ Error sending", ephemeral=True)
         return
-
+)
 return
 
 
