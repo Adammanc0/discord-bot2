@@ -374,66 +374,6 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             return
 
 
-# -----------------------------
-# /randomping COMMAND (NEW)
-# -----------------------------
-@bot.tree.command(name="randomping", description="Ping random users in the server.")
-@app_commands.describe(amount="How many random pings to send")
-async def randomping(interaction: discord.Interaction, amount: int):
-
-    if await check_blacklist(interaction):
-        return
-
-    if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
-        )
-        return
-
-    if amount > 20:
-        await interaction.response.send_message(
-            "Maximum random ping amount is 20.",
-            ephemeral=True
-        )
-        return
-
-    if interaction.guild is None:
-        await interaction.response.send_message(
-            "❌ This command only works in servers.",
-            ephemeral=True
-        )
-        return
-
-    members = [m for m in interaction.guild.members if not m.bot]
-
-    if not members:
-        await interaction.response.send_message(
-            "❌ No users available to ping.",
-            ephemeral=True
-        )
-        return
-
-    await interaction.response.send_message(
-        f"Pinging random users {amount} times...",
-        ephemeral=True
-    )
-
-    for i in range(amount):
-        random_user = random.choice(members)
-        try:
-            await interaction.followup.send(random_user.mention)
-            await asyncio.sleep(0.3)
-        except:
-            await interaction.followup.send(
-                "❌ Error sending random ping.",
-                ephemeral=True
-            )
-            return
-
-    # Feedback reminder here
-    await handle_feedback_reminder(interaction)
-
 
 # -----------------------------
 # /blacklist COMMAND
