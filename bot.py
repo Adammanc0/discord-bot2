@@ -114,9 +114,10 @@ async def hello(interaction: discord.Interaction):
 # -----------------------------
 # /burst COMMAND
 # -----------------------------
-@bot.tree.command(name="spam", description="Spam a message multiple times.")
+@bot.tree.command(name="Burst", description="Spam a message multiple times.")
 @app_commands.describe(message="The message to send", amount="How many times to send it")
-async def spam(interaction: discord.Interaction, message: str, amount: int, user: discord.User):
+async def spam(interaction: discord.Interaction, message: str, amount: int):
+
 
     # Blacklist check
     if await check_blacklist(interaction):
