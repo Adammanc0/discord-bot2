@@ -4,35 +4,26 @@ from discord.ext import commands
 import os
 import asyncio
 
-# -----------------------------
-# BOT SETUP
-# -----------------------------
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
-bot = commands.Bot(command_prefix="|", intents=intents)
-
-
-# -----------------------------
-# BOT READY EVENT
-# -----------------------------
 @bot.event
 async def on_ready():
     await bot.tree.sync()
     print(f"Logged in as {bot.user}")
 
-
-# -----------------------------
-# NORMAL COMMANDS
-# -----------------------------
 @bot.tree.command(name="hello", description="Say hello")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello!")
 
-
 @bot.tree.command(name="burst", description="Send a custom message multiple times.")
 @app_commands.describe(message="The message to send", amount="How many times to send it")
+@app_commands.allowed_installs(guilds=True, users=True) 
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)  
 async def burst(interaction: discord.Interaction, message: str, amount: int):
 
     if amount > 20:
@@ -40,19 +31,21 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         return
 
     await interaction.response.send_message(
-        f"Sending burst of **{amount}** messages!",
+        f"Sending burst of {amount} messages!",
         ephemeral=True
     )
 
     for i in range(amount):
-        await interaction.channel.send(message)
-        await asyncio.sleep(0.3)
+        try:
+            await interaction.followup.send(message)
+            await asyncio.sleep(0.3)
+        except discord.Forbidden:
+            await interaction.followup.send("❌ Can't send messages", ephemeral=True)
+            return
+        except:
+            await interaction.followup.send("❌ Error sending", ephemeral=True)
+            return
 
-
-# -----------------------------
-# RUN BOT
-# -----------------------------
 bot.run(os.getenv("TOKEN"))
-
 
 
