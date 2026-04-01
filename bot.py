@@ -148,9 +148,9 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 
 
 # -----------------------------
-# /pingspam COMMAND (NEW)
+# /pingspam COMMAND
 # -----------------------------
-@bot.tree.command(name="pingspam", description="Spam ping a user multiple times.")
+@bot.tree.command(name="spamping", description="Spam ping a user multiple times.")
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
@@ -183,6 +183,48 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         except:
             await interaction.followup.send(
                 "❌ Error sending ping.",
+                ephemeral=True
+            )
+            return
+
+
+# -----------------------------
+# /ghostping COMMAND (NEW)
+# -----------------------------
+@bot.tree.command(name="ghostping", description="Ping a user repeatedly and delete the messages instantly.")
+@app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
+async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
+
+    if await check_blacklist(interaction):
+        return
+
+    if is_in_blocked_server(interaction):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    if amount > 20:
+        await interaction.response.send_message(
+            "Maximum ghost ping amount is 20.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        f"Ghost pinging {user.mention} {amount} times...",
+        ephemeral=True
+    )
+
+    for i in range(amount):
+        try:
+            msg = await interaction.followup.send(user.mention)
+            await msg.delete()
+            await asyncio.sleep(0.25)
+        except:
+            await interaction.followup.send(
+                "❌ Error ghost pinging.",
                 ephemeral=True
             )
             return
