@@ -49,6 +49,9 @@ async def on_ready():
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def hello(interaction: discord.Interaction):
 
+    print("DEBUG — Guild ID:", interaction.guild.id if interaction.guild else None)
+
+
     # Blacklist check
     if await check_blacklist(interaction):
         return
