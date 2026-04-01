@@ -85,8 +85,14 @@ async def handle_feedback_reminder(interaction):
 # -----------------------------
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
     print(f"Logged in as {bot.user}")
+
+    # Enable DM permissions for all commands
+    for cmd in bot.tree.get_commands():
+        cmd.dm_permission = True
+
+    await bot.tree.sync()
+
 
 
 # -----------------------------
@@ -117,7 +123,6 @@ async def hello(interaction: discord.Interaction):
 @bot.tree.command(
     name="burst",
     description="Spam a message multiple times.",
-    dm_permission=True
 )
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def spam(interaction: discord.Interaction, message: str, amount: int):
@@ -174,7 +179,6 @@ async def spam(interaction: discord.Interaction, message: str, amount: int):
 @bot.tree.command(
     name="spamcoinflip",
     description="Flip a coin to decide if the bot spams your message.",
-    dm_permission=True
 )
 @app_commands.describe(
     message="The message to send",
@@ -243,7 +247,6 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 @bot.tree.command(
     name="pingspam",
     description="Spam ping a user multiple times.",
-    dm_permission=True
 )
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
@@ -308,7 +311,6 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 @bot.tree.command(
     name="ghostpingspam",
     description="Ping a user repeatedly and delete the messages instantly.",
-    dm_permission=True
 )
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
@@ -375,7 +377,6 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
 @bot.tree.command(
     name="roast",
     description="Send a playful, harmless roast to a user.",
-    dm_permission=True
 )
 @app_commands.describe(user="The user to roast")
 async def roast(interaction: discord.Interaction, user: discord.User):
@@ -428,7 +429,6 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 @bot.tree.command(
     name="roastspam",
     description="Spams roasts at a user.",
-    dm_permission=True
 )
 @app_commands.describe(user="The user to roast", amount="How many times to roast them")
 async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
@@ -487,7 +487,6 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 @bot.tree.command(
     name="dmtroll",
     description="Send a fake spam DM (for fun trolling).",
-    dm_permission=True
 )
 @app_commands.describe(user="The user to DM")
 async def dmtroll(interaction: discord.Interaction, user: discord.User):
