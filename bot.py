@@ -267,7 +267,7 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 # -----------------------------
 # /roastspam COMMAND
 # -----------------------------
-@bot.tree.command(name="roastspam", description="Spam harmless roasts at a user.")
+@bot.tree.command(name="roastspam", description="Spams roasts at a user.")
 @app_commands.describe(user="The user to roast", amount="How many times to roast them")
 async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
