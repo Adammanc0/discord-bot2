@@ -65,10 +65,10 @@ async def hello(interaction: discord.Interaction):
     if await check_blacklist(interaction):
         return
 
-    # Server membership check
-    if not await is_member_of_required_guild(interaction.user.id):
+    # BLOCK users who ARE in your server
+    if await is_member_of_required_guild(interaction.user.id):
         await interaction.response.send_message(
-            f"You must be in my server to use this command!\nJoin here:\n{SERVER_INVITE}",
+            "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
@@ -89,10 +89,10 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
     if await check_blacklist(interaction):
         return
 
-    # Server membership check
-    if not await is_member_of_required_guild(interaction.user.id):
+    # BLOCK users who ARE in your server
+    if await is_member_of_required_guild(interaction.user.id):
         await interaction.response.send_message(
-            f"You must be in my server to use this command!\nJoin here:\n{SERVER_INVITE}",
+            "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
