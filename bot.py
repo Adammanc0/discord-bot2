@@ -229,6 +229,64 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
             )
             return
 
+# -----------------------------
+# /roast COMMAND (NEW)
+# -----------------------------
+@bot.tree.command(name="roastspam", description="Spam harmless roasts at a user.")
+@app_commands.describe(user="The user to roast", amount="How many times to roast them")
+async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # Block inside your server
+    if is_in_blocked_server(interaction):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    # Limit
+    if amount > 5:
+        await interaction.response.send_message(
+            "Maximum roast spam amount is 5.",
+            ephemeral=True
+        )
+        return
+
+    # Harmless, playful roasts
+    roasts = [
+        "A glow stick has a brighter future than you. Lasts longer, too.",
+        "You’re like a cloud. When you disappear, it suddenly becomes a beautiful day.",
+        "Sorry, I can’t think of an insult dumb enough for you to understand.",
+        "Stupidity isn’t a crime, so you’re free to go.",
+        "Light travels faster than sound. It explains why you seemed smart… until I finally heard you speak.",
+        " I consider you my sun. Now please get 93 million miles away from here.",
+        "I would smack you, but I’m against animal abuse."
+    ]
+
+    await interaction.response.send_message(
+        f"Roasting {user.mention} {amount} times...",
+        ephemeral=True
+    )
+
+    # Spam loop
+    for i in range(amount):
+        roast_line = random.choice(roasts)
+        try:
+            await interaction.followup.send(f"{user.mention}\n{roast_line}")
+            await asyncio.sleep(0.3)
+        except:
+            await interaction.followup.send(
+                "❌ Error sending roast.",
+                ephemeral=True
+            )
+            return
+
+
+
 
 # -----------------------------
 # /blacklist COMMAND
