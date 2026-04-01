@@ -272,7 +272,6 @@ if user.id in PROTECTED_USERS:
             return
 
 
-    )
     return
 
 
