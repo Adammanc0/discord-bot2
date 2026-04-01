@@ -122,6 +122,14 @@ async def hello(interaction: discord.Interaction):
 
     await interaction.response.send_message("Hello!")
 
+# -----------------------------
+# /testdm COMMAND
+# -----------------------------
+@bot.tree.command(name="testdm", description="Test DM visibility")
+async def testdm(interaction: discord.Interaction):
+    await interaction.response.send_message("DM command works!")
+
+
 
 # -----------------------------
 # /burst COMMAND
