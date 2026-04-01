@@ -442,12 +442,14 @@ async def randomping(interaction: discord.Interaction, amount: int):
 @app_commands.describe(user="The user to blacklist")
 async def blacklist(interaction: discord.Interaction, user: discord.User):
 
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message(
-            "❌ Only administrators can use this command.",
-            ephemeral=True
-        )
-        return
+# Only Adam can use this command
+if interaction.user.id != 1106946860347834458:
+    await interaction.response.send_message(
+        "❌ Only the bot owner can use this command.",
+        ephemeral=True
+    )
+    return
+
 
     blacklisted_users.add(user.id)
 
@@ -467,12 +469,14 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 @app_commands.describe(user="The user to unblacklist")
 async def unblacklist(interaction: discord.Interaction, user: discord.User):
 
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message(
-            "❌ Only administrators can use this command.",
-            ephemeral=True
-        )
-        return
+# Only Adam can use this command
+if interaction.user.id != 1106946860347834458:
+    await interaction.response.send_message(
+        "❌ Only the bot owner can use this command.",
+        ephemeral=True
+    )
+    return
+
 
     if user.id in blacklisted_users:
         blacklisted_users.remove(user.id)
@@ -496,12 +500,14 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
 @bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
 async def blacklistlist(interaction: discord.Interaction):
 
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message(
-            "❌ Only administrators can use this command.",
-            ephemeral=True
-        )
-        return
+# Only Adam can use this command
+if interaction.user.id != 1106946860347834458:
+    await interaction.response.send_message(
+        "❌ Only the bot owner can use this command.",
+        ephemeral=True
+    )
+    return
+
 
     if not blacklisted_users:
         await interaction.response.send_message(
