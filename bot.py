@@ -87,33 +87,15 @@ async def handle_feedback_reminder(interaction):
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
-    # -----------------------------
-    # 1. CLEAR OLD GUILD COMMANDS
-    # -----------------------------
-    guild = discord.Object(id=REQUIRED_GUILD_ID)
-
-    # Sync guild commands (loads whatever exists)
-    await bot.tree.sync(guild=guild)
-
-    # Clear them
-    bot.tree.clear_commands(guild=guild)
-
-    # Sync again to push the empty list
-    await bot.tree.sync(guild=guild)
-    print("Cleared old guild commands.")
-
-    # -----------------------------
-    # 2. ENABLE DM PERMISSIONS
-    # -----------------------------
+    # Enable DM permissions for all commands
     for cmd in bot.tree.get_commands():
         cmd.dm_permission = True
         cmd.default_member_permissions = None
 
-    # -----------------------------
-    # 3. GLOBAL SYNC
-    # -----------------------------
+    # Global sync only
     synced = await bot.tree.sync()
     print(f"Synced {len(synced)} commands globally.")
+
 
 
 
@@ -142,12 +124,7 @@ async def hello(interaction: discord.Interaction):
 
     await interaction.response.send_message("Hello!")
 
-# -----------------------------
-# /testdm COMMAND
-# -----------------------------
-@bot.tree.command(name="testdm", description="Test DM visibility")
-async def testdm(interaction: discord.Interaction):
-    await interaction.response.send_message("DM command works!")
+
 
 
 
