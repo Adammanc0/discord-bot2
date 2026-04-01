@@ -168,58 +168,66 @@ async def spam(interaction: discord.Interaction, message: str, amount: int, user
 # -----------------------------
 # /spamcoinflip COMMAND
 # -----------------------------
-@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
-@app_commands.describe(message="The message to send", amount="How many times to send it")
+@bot.tree.command(
+    name="spamcoinflip",
+    description="Flip a coin to decide if the bot spams your message."
+)
+@app_commands.describe(
+    message="The message to send",
+    amount="How many times to send it"
+)
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
+    # Blocked server check
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
-    )
-    return
 
-
+    # Amount limit
     if amount > 20:
-        await interaction.response.send_message("Maximum spam amount is 20.", ephemeral=True)
-        return
-
-    result = random.choice(["heads", "tails"])
-
-    if result == "tails":
         await interaction.response.send_message(
-            "🪙 Coinflip: **Tails** — No spam this time.",
+            "Maximum burst amount is 20.",
             ephemeral=True
         )
         return
 
+    # Flip the coin
+    result = random.choice(["heads", "tails"])
+
+    if result == "tails":
+        await interaction.response.send_message(
+            "🪙 The coin landed on **tails** — no spam this time.",
+            ephemeral=True
+        )
+        return
+
+    # If heads → spam
     await interaction.response.send_message(
-        f"🪙 Coinflip: **Heads** — Spamming {amount} messages!",
+        f"🪙 The coin landed on **heads** — spamming `{message}` {amount} times!",
         ephemeral=True
     )
 
-    # Feedback reminder here
+    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
+    # Spam loop
     for i in range(amount):
         try:
             await interaction.followup.send(message)
             await asyncio.sleep(0.3)
         except:
-            await interaction.followup.send("❌ Error sending message.", ephemeral=True)
+            await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
 
-
     return
+
 
 
 
