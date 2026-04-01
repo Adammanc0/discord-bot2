@@ -15,6 +15,14 @@ SERVER_INVITE = "https://discord.gg/M2DebeaJga"
 # Blacklist storage
 blacklisted_users = set()
 
+# Feedback reminder tracking
+command_usage = {}
+has_been_reminded = {}
+
+# Replace with your actual feedback channel ID
+FEEDBACK_CHANNEL_ID = 123456789012345678
+
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
@@ -41,6 +49,34 @@ async def check_blacklist(interaction: discord.Interaction):
     return False
 
 
+async def handle_feedback_reminder(interaction):
+    user_id = interaction.user.id
+
+    # Skip if user already got the reminder
+    if has_been_reminded.get(user_id):
+        return
+
+    # Increase their command count
+    command_usage[user_id] = command_usage.get(user_id, 0) + 1
+
+    # Trigger reminder at 3 commands
+    if command_usage[user_id] >= 3:
+        channel = interaction.client.get_channel(FEEDBACK_CHANNEL_ID)
+        if channel:
+            await channel.send(
+                f"Hey {interaction.user.mention}, you've used the bot a few times! "
+                f"If you're enjoying it, feel free to leave feedback in <#1487091727020851311>."
+            )
+
+        # Mark them as reminded forever
+        has_been_reminded[user_id] = True
+
+        # Reset their counter
+        command_usage[user_id] = 0
+
+
+
+
 # -----------------------------
 # BOT READY
 # -----------------------------
@@ -65,6 +101,9 @@ async def hello(interaction: discord.Interaction):
             ephemeral=True
         )
         return
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
     await interaction.response.send_message("Hello!")
 
@@ -94,6 +133,9 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         f"Sending burst of {amount} messages!",
         ephemeral=True
     )
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
     for i in range(amount):
         try:
@@ -139,6 +181,9 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         ephemeral=True
     )
 
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
+
     for i in range(amount):
         try:
             await interaction.followup.send(message)
@@ -176,6 +221,9 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         f"Pinging {user.mention} {amount} times!",
         ephemeral=True
     )
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
     for i in range(amount):
         try:
@@ -217,6 +265,9 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         f"Ghost pinging {user.mention} {amount} times...",
         ephemeral=True
     )
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
     for i in range(amount):
         try:
@@ -264,6 +315,9 @@ async def roast(interaction: discord.Interaction, user: discord.User):
         f"{user.mention}\n{roast_line}"
     )
 
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
+
 
 # -----------------------------
 # /roastspam COMMAND
@@ -303,6 +357,9 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         f"Roasting {user.mention} {amount} times...",
         ephemeral=True
     )
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
     for i in range(amount):
         roast_line = random.choice(roasts)
@@ -374,6 +431,9 @@ async def randomping(interaction: discord.Interaction, amount: int):
             )
             return
 
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
+
 
 # -----------------------------
 # /blacklist COMMAND
@@ -395,6 +455,9 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
         f"✅ {user.mention} has been blacklisted.",
         ephemeral=True
     )
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
 
 # -----------------------------
@@ -423,6 +486,9 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
             ephemeral=True
         )
 
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
+
 
 # -----------------------------
 # /blacklistlist COMMAND
@@ -450,6 +516,9 @@ async def blacklistlist(interaction: discord.Interaction):
         f"📝 **Blacklisted Users:**\n{user_list}",
         ephemeral=True
     )
+
+    # Feedback reminder here
+    await handle_feedback_reminder(interaction)
 
 
 # -----------------------------
