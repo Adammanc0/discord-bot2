@@ -484,6 +484,10 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
         "HEY",
         "HEY YOU",
         "READ THIS NOW",
+        "COME AND READ THIS BRO",
+        "STOP IGNORING ME",
+        "GET THE FUCK HERE",
+        "HURRY UP PLEASE BRO",
         "THIS IS IMPORTANT",
         "...",
         "you just got trolled 😂"
