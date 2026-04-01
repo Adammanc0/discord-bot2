@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import os
 import asyncio
+import random
 
 # -----------------------------
 # CONFIG
@@ -110,11 +111,56 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         try:
             await interaction.followup.send(message)
             await asyncio.sleep(0.3)
-        except discord.Forbidden:
-            await interaction.followup.send("❌ Can't send messages", ephemeral=True)
-            return
         except:
             await interaction.followup.send("❌ Error sending", ephemeral=True)
+            return
+
+
+# -----------------------------
+# /spamcoinflip COMMAND
+# -----------------------------
+@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
+@app_commands.describe(message="The message to send", amount="How many times to send it")
+async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # BLOCK users who ARE in your server
+    if await is_member_of_required_guild(interaction.user.id):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    if amount > 20:
+        await interaction.response.send_message("Maximum spam amount is 20.", ephemeral=True)
+        return
+
+    # Flip the coin
+    result = random.choice(["heads", "tails"])
+
+    if result == "tails":
+        await interaction.response.send_message(
+            "🪙 Coinflip: **Tails** — No spam this time.",
+            ephemeral=True
+        )
+        return
+
+    # Heads → spam
+    await interaction.response.send_message(
+        f"🪙 Coinflip: **Heads** — Spamming {amount} messages!",
+        ephemeral=True
+    )
+
+    for i in range(amount):
+        try:
+            await interaction.followup.send(message)
+            await asyncio.sleep(0.3)
+        except:
+            await interaction.followup.send("❌ Error sending message.", ephemeral=True)
             return
 
 
