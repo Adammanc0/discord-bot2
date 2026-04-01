@@ -17,7 +17,7 @@ blacklisted_users = set()
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
-intents.members = True  # IMPORTANT: required for membership checks
+intents.members = True  # REQUIRED for membership checks
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 
@@ -157,7 +157,91 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send(message)
             await asyncio.sleep(0.3)
         except:
-            await
+            await interaction.followup.send("❌ Error sending message.", ephemeral=True)
+            return
+
+
+# -----------------------------
+# /blacklist COMMAND
+# -----------------------------
+@bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
+@app_commands.describe(user="The user to blacklist")
+async def blacklist(interaction: discord.Interaction, user: discord.User):
+
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message(
+            "❌ Only administrators can use this command.",
+            ephemeral=True
+        )
+        return
+
+    blacklisted_users.add(user.id)
+
+    await interaction.response.send_message(
+        f"✅ {user.mention} has been blacklisted.",
+        ephemeral=True
+    )
+
+
+# -----------------------------
+# /unblacklist COMMAND
+# -----------------------------
+@bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
+@app_commands.describe(user="The user to unblacklist")
+async def unblacklist(interaction: discord.Interaction, user: discord.User):
+
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message(
+            "❌ Only administrators can use this command.",
+            ephemeral=True
+        )
+        return
+
+    if user.id in blacklisted_users:
+        blacklisted_users.remove(user.id)
+        await interaction.response.send_message(
+            f"✅ {user.mention} has been removed from the blacklist.",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            "❌ That user is not blacklisted.",
+            ephemeral=True
+        )
+
+
+# -----------------------------
+# /blacklistlist COMMAND
+# -----------------------------
+@bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
+async def blacklistlist(interaction: discord.Interaction):
+
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message(
+            "❌ Only administrators can use this command.",
+            ephemeral=True
+        )
+        return
+
+    if not blacklisted_users:
+        await interaction.response.send_message(
+            "📭 The blacklist is empty.",
+            ephemeral=True
+        )
+        return
+
+    user_list = "\n".join(f"<@{uid}>" for uid in blacklisted_users)
+
+    await interaction.response.send_message(
+        f"📝 **Blacklisted Users:**\n{user_list}",
+        ephemeral=True
+    )
+
+
+# -----------------------------
+# START BOT
+# -----------------------------
+bot.run(os.getenv("TOKEN"))
 
 
 
