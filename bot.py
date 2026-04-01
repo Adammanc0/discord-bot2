@@ -299,9 +299,11 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
+    # Blocked server check
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -309,6 +311,7 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         )
         return
 
+    # Amount limit
     if amount > 20:
         await interaction.response.send_message(
             "Maximum ghost ping amount is 20.",
@@ -316,22 +319,24 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         )
         return
 
+    # PROTECTED USER CHECK — must be inside the function
+    if user.id in PROTECTED_USERS:
+        await interaction.response.send_message(
+            "❌ You cannot target that user.",
+            ephemeral=True
+        )
+        return
+
+    # Initial response
     await interaction.response.send_message(
         f"Ghost pinging {user.mention} {amount} times...",
         ephemeral=True
     )
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
-    )
-    return
-
-
-    # Feedback reminder here
+    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
+    # Ghost ping loop
     for i in range(amount):
         try:
             msg = await interaction.followup.send(user.mention)
@@ -345,6 +350,7 @@ if user.id in PROTECTED_USERS:
             return
 
     return
+
 
 
 
