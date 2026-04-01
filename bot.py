@@ -465,30 +465,25 @@ if interaction.user.id != 1106946860347834458:
 # -----------------------------
 # /unblacklist COMMAND
 # -----------------------------
-@bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
-@app_commands.describe(user="The user to unblacklist")
-async def unblacklist(interaction: discord.Interaction, user: discord.User):
+@bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
+@app_commands.describe(user="The user to blacklist")
+async def blacklist(interaction: discord.Interaction, user: discord.User):
 
-# Only Adam can use this command
-if interaction.user.id != 1106946860347834458:
+    # Only Adam can use this command
+    if interaction.user.id != 1106946860347834458:
+        await interaction.response.send_message(
+            "❌ Only the bot owner can use this command.",
+            ephemeral=True
+        )
+        return
+
+    blacklisted_users.add(user.id)
+
     await interaction.response.send_message(
-        "❌ Only the bot owner can use this command.",
+        f"✅ {user.mention} has been blacklisted.",
         ephemeral=True
     )
-    return
 
-
-    if user.id in blacklisted_users:
-        blacklisted_users.remove(user.id)
-        await interaction.response.send_message(
-            f"✅ {user.mention} has been removed from the blacklist.",
-            ephemeral=True
-        )
-    else:
-        await interaction.response.send_message(
-            "❌ That user is not blacklisted.",
-            ephemeral=True
-        )
 
     # Feedback reminder here
     await handle_feedback_reminder(interaction)
