@@ -238,9 +238,11 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
+    # Blocked server check
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -248,14 +250,15 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         )
         return
 
-if user.id in PROTECTED_USERS:
-    await interaction.response.send_message(
-        "❌ You cannot target that user.",
-        ephemeral=True
-    )
-    return
+    # Protected user check
+    if user.id in PROTECTED_USERS:
+        await interaction.response.send_message(
+            "❌ You cannot target that user.",
+            ephemeral=True
+        )
+        return
 
-
+    # Amount limit
     if amount > 20:
         await interaction.response.send_message(
             "Maximum ping spam amount is 20.",
@@ -263,14 +266,16 @@ if user.id in PROTECTED_USERS:
         )
         return
 
+    # Initial response
     await interaction.response.send_message(
         f"Pinging {user.mention} {amount} times!",
         ephemeral=True
     )
 
-    # Feedback reminder here
+    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
+    # Spam loop
     for i in range(amount):
         try:
             await interaction.followup.send(user.mention)
@@ -282,8 +287,8 @@ if user.id in PROTECTED_USERS:
             )
             return
 
-
     return
+
 
 
 
