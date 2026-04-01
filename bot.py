@@ -20,12 +20,23 @@ async def on_ready():
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello!")
 
+REQUIRED_GUILD_ID = 1487086105479352501
+
 @bot.tree.command(name="burst", description="Send a custom message multiple times.")
 @app_commands.describe(message="The message to send", amount="How many times to send it")
-@app_commands.allowed_installs(guilds=True, users=True) 
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)  
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def burst(interaction: discord.Interaction, message: str, amount: int):
 
+    # Check if user is in your server
+    if interaction.guild is None or interaction.guild.id != REQUIRED_GUILD_ID:
+        await interaction.response.send_message(
+            "You must be in my server to use this command!\nJoin here:\nhttps://https://discord.gg/M2DebeaJga",
+            ephemeral=True
+        )
+        return
+
+    # Normal burst logic
     if amount > 20:
         await interaction.response.send_message("Maximum burst amount is 20.", ephemeral=True)
         return
@@ -36,9 +47,9 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
     )
 
     for i in range(amount):
-        try:
-            await interaction.followup.send(message)
-            await asyncio.sleep(0.3)
+        await interaction.followup.send(message)
+        await asyncio.sleep(0.3)
+
         except discord.Forbidden:
             await interaction.followup.send("❌ Can't send messages", ephemeral=True)
             return
