@@ -29,7 +29,7 @@ FEEDBACK_CHANNEL_ID = 123456789012345678
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
-intents.members = True  # ⭐ REQUIRED FOR MEMBERSHIP CHECK
+intents.members = True  # REQUIRED FOR MEMBERSHIP CHECK
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -73,16 +73,18 @@ async def handle_feedback_reminder(interaction):
 # -----------------------------
 # REQUIRE USER TO BE IN MY SERVER
 # -----------------------------
-async def require_membership(interaction: discord.Interaction):
-    guild = interaction.client.get_guild(REQUIRED_GUILD_ID)
+async def safe_check_membership(interaction: discord.Interaction):
+    # Acknowledge the interaction immediately
+    if not interaction.response.is_done():
+        await interaction.response.defer(ephemeral=True)
 
+    guild = interaction.client.get_guild(REQUIRED_GUILD_ID)
     if guild is None:
         return False
 
     member = guild.get_member(interaction.user.id)
-
     if member is None:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"❌ You must join my server to use this bot!\nJoin here: {SERVER_INVITE}",
             ephemeral=True
         )
@@ -106,10 +108,13 @@ async def on_ready():
 
 @bot.tree.command(name="printguilds", description="Print all servers the bot is in.")
 async def printguilds(interaction: discord.Interaction):
+    if await safe_check_membership(interaction):
+        return
+
     guilds = bot.guilds
     text = "\n".join(f"{g.name} — {g.id}" for g in guilds)
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"🧩 **Bot is in these servers:**\n{text}",
         ephemeral=True
     )
@@ -120,24 +125,21 @@ async def printguilds(interaction: discord.Interaction):
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
 
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Feedback reminder here
     await handle_feedback_reminder(interaction)
-
-    await interaction.response.send_message("Hello!")
-
-
-
-
+    await interaction.followup.send("Hello!")
 
 # -----------------------------
 # /burst COMMAND
@@ -149,36 +151,33 @@ async def hello(interaction: discord.Interaction):
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def spam(interaction: discord.Interaction, message: str, amount: int):
 
-    # Blacklist check
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
-    # Blocked server check
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Amount limit
     if amount > 20:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Maximum burst amount is 20.",
             ephemeral=True
         )
         return
 
-    # Initial response
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"Sending your message {amount} times!",
         ephemeral=True
     )
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
-    # Spam loop
     for i in range(amount):
         try:
             await interaction.followup.send(message)
@@ -186,14 +185,6 @@ async def spam(interaction: discord.Interaction, message: str, amount: int):
         except:
             await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
-
-    return
-
-
-
-
-
-
 
 # -----------------------------
 # /spamcoinflip COMMAND
@@ -208,46 +199,42 @@ async def spam(interaction: discord.Interaction, message: str, amount: int):
 )
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
 
-    # Blacklist check
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
-    # Blocked server check
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Amount limit
     if amount > 20:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Maximum burst amount is 20.",
             ephemeral=True
         )
         return
 
-    # Flip the coin
     result = random.choice(["heads", "tails"])
 
     if result == "tails":
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "🪙 The coin landed on **tails** — no spam this time.",
             ephemeral=True
         )
         return
 
-    # If heads → spam
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"🪙 The coin landed on **heads** — spamming `{message}` {amount} times!",
         ephemeral=True
     )
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
-    # Spam loop
     for i in range(amount):
         try:
             await interaction.followup.send(message)
@@ -256,16 +243,9 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
 
-    return
-
-
-
-
 # -----------------------------
 # /pingspam COMMAND
 # -----------------------------
-
-
 @bot.tree.command(
     name="pingspam",
     description="Spam ping a user multiple times.",
@@ -273,44 +253,40 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
-    # Blacklist check
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
-    # Blocked server check
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Protected user check
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ You cannot target that user.",
             ephemeral=True
         )
         return
 
-    # Amount limit
     if amount > 20:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Maximum ping spam amount is 20.",
             ephemeral=True
         )
         return
 
-    # Initial response
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"Pinging {user.mention} {amount} times!",
         ephemeral=True
     )
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
-    # Spam loop
     for i in range(amount):
         try:
             await interaction.followup.send(user.mention)
@@ -322,11 +298,6 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             )
             return
 
-    return
-
-
-
-
 # -----------------------------
 # /ghostpingspam COMMAND
 # -----------------------------
@@ -337,44 +308,40 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
-    # Blacklist check
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
-    # Blocked server check
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Amount limit
     if amount > 20:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Maximum ghost ping amount is 20.",
             ephemeral=True
         )
         return
 
-    # Protected user check
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ You cannot target that user.",
             ephemeral=True
         )
         return
 
-    # Initial response
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"Ghost pinging {user.mention} {amount} times...",
         ephemeral=True
     )
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
-    # Ghost ping loop
     for i in range(amount):
         try:
             msg = await interaction.followup.send(user.mention)
@@ -387,12 +354,6 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
             )
             return
 
-    return
-
-
-
-
-
 # -----------------------------
 # /roast COMMAND
 # -----------------------------
@@ -403,21 +364,21 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
 @app_commands.describe(user="The user to roast")
 async def roast(interaction: discord.Interaction, user: discord.User):
 
-    # Blacklist check
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
-    # Blocked server check
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
-    # Protected user check
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ You cannot target that user.",
             ephemeral=True
         )
@@ -435,15 +396,11 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 
     roast_line = random.choice(roasts)
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"{user.mention}\n{roast_line}"
     )
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
-
-
-
 
 # -----------------------------
 # /roastspam COMMAND
@@ -455,18 +412,21 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 @app_commands.describe(user="The user to roast", amount="How many times to roast them")
 async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Commands cannot be used inside my server.",
             ephemeral=True
         )
         return
 
     if amount > 20:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Maximum roast spam amount is 20.",
             ephemeral=True
         )
@@ -482,12 +442,11 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         "I would smack you, but I’m against animal abuse."
     ]
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"Roasting {user.mention} {amount} times...",
         ephemeral=True
     )
 
-    # Feedback reminder here
     await handle_feedback_reminder(interaction)
 
     for i in range(amount):
@@ -502,7 +461,6 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             )
             return
 
-
 # -----------------------------
 # /dmtroll COMMAND
 # -----------------------------
@@ -513,19 +471,20 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 @app_commands.describe(user="The user to DM")
 async def dmtroll(interaction: discord.Interaction, user: discord.User):
 
-    # Blacklist check
+    if await safe_check_membership(interaction):
+        return
+
     if await check_blacklist(interaction):
         return
 
-    # Protected user check
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ You cannot target that user.",
             ephemeral=True
         )
         return
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"😈 Sending a totally real and serious message to {user.mention}...",
         ephemeral=True
     )
@@ -554,14 +513,7 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
         )
         return
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
-
-
-
-
-
-
 
 # -----------------------------
 # /blacklist COMMAND
@@ -570,9 +522,11 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
 @app_commands.describe(user="The user to blacklist")
 async def blacklist(interaction: discord.Interaction, user: discord.User):
 
-    # Only Adam can use this command
+    if await safe_check_membership(interaction):
+        return
+
     if interaction.user.id != 1106946860347834458:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Only the bot owner can use this command.",
             ephemeral=True
         )
@@ -580,16 +534,10 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 
     blacklisted_users.add(user.id)
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"✅ {user.mention} has been blacklisted.",
         ephemeral=True
     )
-
-
-
-
-
-
 
 # -----------------------------
 # /unblacklist COMMAND
@@ -598,9 +546,11 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 @app_commands.describe(user="The user to unblacklist")
 async def unblacklist(interaction: discord.Interaction, user: discord.User):
 
-    # Only Adam can use this command
+    if await safe_check_membership(interaction):
+        return
+
     if interaction.user.id != 1106946860347834458:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Only the bot owner can use this command.",
             ephemeral=True
         )
@@ -608,22 +558,15 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
 
     if user.id in blacklisted_users:
         blacklisted_users.remove(user.id)
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"✅ {user.mention} has been removed from the blacklist.",
             ephemeral=True
         )
     else:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ That user is not blacklisted.",
             ephemeral=True
         )
-
-
-
-
-
-
-
 
 # -----------------------------
 # /blacklistlist COMMAND
@@ -631,16 +574,18 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
 @bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
 async def blacklistlist(interaction: discord.Interaction):
 
-    # Only Adam can use this command
+    if await safe_check_membership(interaction):
+        return
+
     if interaction.user.id != 1106946860347834458:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Only the bot owner can use this command.",
             ephemeral=True
         )
         return
 
     if not blacklisted_users:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "📭 The blacklist is empty.",
             ephemeral=True
         )
@@ -648,7 +593,7 @@ async def blacklistlist(interaction: discord.Interaction):
 
     user_list = "\n".join(f"<@{uid}>" for uid in blacklisted_users)
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"📝 **Blacklisted Users:**\n{user_list}",
         ephemeral=True
     )
