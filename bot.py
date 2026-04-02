@@ -516,15 +516,17 @@ async def help_command(interaction: discord.Interaction):
 # -----------------------------
 # /blacklist
 # -----------------------------
+BOT_ADMINS = {1106946860347834458, 1387329189455331349}
+
 @bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to blacklist")
 async def blacklist(interaction: discord.Interaction, user: discord.User):
 
-    if interaction.user.id != 1106946860347834458:
+    if interaction.user.id not in BOT_ADMINS:
         await interaction.response.send_message(
-            "❌ Only the bot owner can use this command.",
+            "❌ Only bot admins can use this command.",
             ephemeral=True
         )
         return
@@ -536,6 +538,7 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
         ephemeral=True
     )
 
+
 # -----------------------------
 # /unblacklist
 # -----------------------------
@@ -545,9 +548,9 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 @app_commands.describe(user="The user to unblacklist")
 async def unblacklist(interaction: discord.Interaction, user: discord.User):
 
-    if interaction.user.id != 1106946860347834458:
+    if interaction.user.id not in BOT_ADMINS:
         await interaction.response.send_message(
-            "❌ Only the bot owner can use this command.",
+            "❌ Only bot admins can use this command.",
             ephemeral=True
         )
         return
@@ -564,6 +567,7 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
             ephemeral=True
         )
 
+
 # -----------------------------
 # /blacklistlist
 # -----------------------------
@@ -572,9 +576,9 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def blacklistlist(interaction: discord.Interaction):
 
-    if interaction.user.id != 1106946860347834458:
+    if interaction.user.id not in BOT_ADMINS:
         await interaction.response.send_message(
-            "❌ Only the bot owner can use this command.",
+            "❌ Only bot admins can use this command.",
             ephemeral=True
         )
         return
@@ -592,6 +596,7 @@ async def blacklistlist(interaction: discord.Interaction):
         f"📝 **Blacklisted Users:**\n{user_list}",
         ephemeral=True
     )
+
 
 # -----------------------------
 # START BOT
