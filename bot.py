@@ -571,6 +571,63 @@ async def adminadd(interaction: discord.Interaction, user: discord.User):
         ephemeral=True
     )
 
+@bot.tree.command(name="adminremove", description="Remove a user from bot admins.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to remove from admins")
+async def adminremove(interaction: discord.Interaction, user: discord.User):
+
+    if interaction.user.id != 1106946860347834458:
+        await interaction.response.send_message(
+            "❌ Only the bot owner can remove admins.",
+            ephemeral=True
+        )
+        return
+
+    if user.id == 1106946860347834458:
+        await interaction.response.send_message(
+            "❌ You cannot remove yourself as the owner.",
+            ephemeral=True
+        )
+        return
+
+    if user.id in BOT_ADMINS:
+        BOT_ADMINS.remove(user.id)
+        await interaction.response.send_message(
+            f"✅ {user.mention} is no longer a bot admin.",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            "❌ That user is not an admin.",
+            ephemeral=True
+        )
+
+@bot.tree.command(name="adminlist", description="View all bot admins.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def adminlist(interaction: discord.Interaction):
+
+    if interaction.user.id not in BOT_ADMINS:
+        await interaction.response.send_message(
+            "❌ Only bot admins can view the admin list.",
+            ephemeral=True
+        )
+        return
+
+    if not BOT_ADMINS:
+        await interaction.response.send_message(
+            "📭 No admins found.",
+            ephemeral=True
+        )
+        return
+
+    admin_list = "\n".join(f"<@{uid}>" for uid in BOT_ADMINS)
+
+    await interaction.response.send_message(
+        f"🛠️ **Bot Admins:**\n{admin_list}",
+        ephemeral=True
+    )
 
 
 
