@@ -359,7 +359,7 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
     await handle_feedback_reminder(interaction)
 
-    for i in range(amount):
+for i in range(amount):
     try:
         await interaction.followup.send(gif_url)
         await asyncio.sleep(0.3)
