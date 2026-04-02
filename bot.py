@@ -359,19 +359,21 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
     await handle_feedback_reminder(interaction)
 
-for i in range(amount):
-    try:
-        await interaction.followup.send(gif_url)
-        await asyncio.sleep(0.3)
-    except:
-        error_embed = discord.Embed(
-            title="❌ Error",
-            description="There was an issue sending your GIFs.",
-            color=0xDC143C
-        )
-        error_embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.followup.send(embed=error_embed, ephemeral=True)
-        return
+    # ⭐ THIS LOOP MUST BE INDENTED INSIDE THE FUNCTION
+    for i in range(amount):
+        try:
+            await interaction.followup.send(gif_url)
+            await asyncio.sleep(0.3)
+        except:
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your GIFs.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            return
+
 
 
 
