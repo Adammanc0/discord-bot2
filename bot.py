@@ -440,6 +440,80 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
     await handle_feedback_reminder(interaction)
 
 # -----------------------------
+# /help COMMAND
+# -----------------------------
+@bot.tree.command(name="help", description="Show all bot commands and what they do.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def help_command(interaction: discord.Interaction):
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # Blocked server check
+    if is_in_blocked_server(interaction):
+        await interaction.response.send_message(
+            "❌ Commands cannot be used inside my server.",
+            ephemeral=True
+        )
+        return
+
+    # Feedback reminder
+    await handle_feedback_reminder(interaction)
+
+    embed = discord.Embed(
+        title="📘 NexuBot Help Menu",
+        description="Here are all available commands:",
+        color=discord.Color.blue()
+    )
+
+    embed.add_field(
+        name="👋 General",
+        value=(
+            "**/hello** — Say hello\n"
+            "**/help** — Show this help menu"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="💬 Messaging",
+        value=(
+            "**/burst** — Spam a message multiple times\n"
+            "**/spamcoinflip** — Flip a coin to decide if the bot spams\n"
+            "**/pingspam** — Spam ping a user\n"
+            "**/ghostpingspam** — Ghost ping a user repeatedly\n"
+            "**/dmtroll** — Send a fake spam DM"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="🔥 Roasting",
+        value=(
+            "**/roast** — Send a playful roast\n"
+            "**/roastspam** — Spam roasts at a user"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="🔒 Owner Commands",
+        value=(
+            "**/blacklist** — Blacklist a user\n"
+            "**/unblacklist** — Remove a user from blacklist\n"
+            "**/blacklistlist** — View all blacklisted users"
+        ),
+        inline=False
+    )
+
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+# -----------------------------
 # /blacklist
 # -----------------------------
 @bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
