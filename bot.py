@@ -40,9 +40,6 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
-def is_in_blocked_server(interaction: discord.Interaction) -> bool:
-    return interaction.guild and interaction.guild.id == REQUIRED_GUILD_ID
-
 async def check_blacklist(interaction: discord.Interaction):
     if interaction.user.id in blacklisted_users:
         embed = discord.Embed(
@@ -72,7 +69,30 @@ async def handle_feedback_reminder(interaction):
             )
 
         has_been_reminded[user_id] = True
-        command_usage[user_id] = 0
+        command_usage[user_id] = 0  
+
+
+async def require_membership(interaction: discord.Interaction):
+    guild = interaction.client.get_guild(REQUIRED_GUILD_ID)
+
+    if guild is None:
+        await interaction.response.send_message(
+            "❌ The bot is not connected to the main server.",
+            ephemeral=True
+        )
+        return True
+
+    member = guild.get_member(interaction.user.id)
+
+    if member is None:
+        await interaction.response.send_message(
+            f"❌ You must join my server to use this bot!\n{SERVER_INVITE}",
+            ephemeral=True
+        )
+        return True
+
+    return False
+
 
 # ============================================================
 # BOT READY
@@ -111,18 +131,12 @@ async def on_ready():
 async def hello(interaction: discord.Interaction):
 
     logging.info(f"/hello used by {interaction.user}")
+    await send_log_dm(f"/hello used by {interaction.user}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     await handle_feedback_reminder(interaction)
@@ -137,7 +151,6 @@ async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
@@ -148,18 +161,12 @@ async def hello(interaction: discord.Interaction):
 async def burst(interaction: discord.Interaction, message: str, amount: int):
 
     logging.info(f"/burst used by {interaction.user} | amount={amount}")
+    await send_log_dm(f"/burst used by {interaction.user} | amount={amount}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     if amount > 20:
@@ -198,6 +205,8 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 
 
 
+
+
 @bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -205,18 +214,12 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
 
     logging.info(f"/spamcoinflip used by {interaction.user} | amount={amount}")
+    await send_log_dm(f"/spamcoinflip used by {interaction.user} | amount={amount}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     if amount > 20:
@@ -277,18 +280,12 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
     logging.info(f"/pingspam used by {interaction.user} on {user} | amount={amount}")
+    await send_log_dm(f"/pingspam used by {interaction.user} on {user} | amount={amount}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     if user.id in PROTECTED_USERS:
@@ -344,18 +341,12 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
     logging.info(f"/ghostpingspam used by {interaction.user} on {user} | amount={amount}")
+    await send_log_dm(f"/ghostpingspam used by {interaction.user} on {user} | amount={amount}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     if user.id in PROTECTED_USERS:
@@ -407,16 +398,6 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
 # ============================================================
 # ROAST COMMANDS
 # ============================================================
-ROASTS = [
-    "A glow stick has a brighter future than you.",
-    "You’re like a cloud. When you disappear, it’s a better day.",
-    "I can’t think of an insult simple enough for you.",
-    "Stupidity isn’t a crime, so you’re free to go.",
-    "Light travels faster than sound — explains why you seemed smart at first.",
-    "You’re my sun. Now get 93 million miles away.",
-    "I’d smack you, but I’m against animal abuse."
-]
-
 @bot.tree.command(name="roast", description="Send a playful roast to a user.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -424,18 +405,12 @@ ROASTS = [
 async def roast(interaction: discord.Interaction, user: discord.User):
 
     logging.info(f"/roast used by {interaction.user} on {user}")
+    await send_log_dm(f"/roast used by {interaction.user} on {user}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     if user.id in PROTECTED_USERS:
@@ -469,18 +444,12 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
 
     logging.info(f"/roastspam used by {interaction.user} on {user} | amount={amount}")
+    await send_log_dm(f"/roastspam used by {interaction.user} on {user} | amount={amount}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     if amount > 20:
@@ -531,6 +500,10 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 async def dmtroll(interaction: discord.Interaction, user: discord.User):
 
     logging.info(f"/dmtroll used by {interaction.user} on {user}")
+    await send_log_dm(f"/dmtroll used by {interaction.user} on {user}")
+
+    if await require_membership(interaction):
+        return
 
     if await check_blacklist(interaction):
         return
@@ -565,8 +538,6 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
             await user.send(msg)
             await asyncio.sleep(1)
     except:
-        logging.error("Failed to DM user during /dmtroll", exc_info=True)
-
         error_embed = discord.Embed(
             title="❌ DM Failed",
             description="Couldn't DM that user. They probably have DMs closed.",
@@ -588,18 +559,12 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
 async def help_command(interaction: discord.Interaction):
 
     logging.info(f"/help used by {interaction.user}")
+    await send_log_dm(f"/help used by {interaction.user}")
 
-    if await check_blacklist(interaction):
+    if await require_membership(interaction):
         return
 
-    if is_in_blocked_server(interaction):
-        embed = discord.Embed(
-            title="🚫 Command Blocked",
-            description="Commands cannot be used **inside my server**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if await check_blacklist(interaction):
         return
 
     await handle_feedback_reminder(interaction)
@@ -612,10 +577,7 @@ async def help_command(interaction: discord.Interaction):
 
     embed.add_field(
         name="👋 General",
-        value=(
-            "**/hello** — Say hello\n"
-            "**/help** — Show this help menu"
-        ),
+        value="**/hello** — Say hello\n**/help** — Show this help menu",
         inline=False
     )
 
@@ -633,10 +595,7 @@ async def help_command(interaction: discord.Interaction):
 
     embed.add_field(
         name="🔥 Roasting",
-        value=(
-            "**/roast** — Roast a user\n"
-            "**/roastspam** — Spam roasts"
-        ),
+        value="**/roast** — Roast a user\n**/roastspam** — Spam roasts",
         inline=False
     )
 
@@ -658,6 +617,7 @@ async def help_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+
 # ============================================================
 # DM LOGGING SETUP
 # ============================================================
@@ -673,7 +633,6 @@ async def send_log_dm(message: str):
 # ============================================================
 # ADMIN COMMANDS
 # ============================================================
-
 @bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -682,6 +641,9 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 
     logging.warning(f"/blacklist used by {interaction.user} on {user}")
     await send_log_dm(f"/blacklist used by {interaction.user} on {user}")
+
+    if await require_membership(interaction):
+        return
 
     if interaction.user.id not in BOT_ADMINS:
         embed = discord.Embed(
@@ -697,12 +659,13 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 
     embed = discord.Embed(
         title="🛠️ User Blacklisted",
-        description=f"{user.mention} has been **blacklisted** and can no longer use NexuBot.",
+        description=f"{user.mention} has been **blacklisted**.",
         color=0xDC143C
     )
     embed.set_footer(text="NexuBot • Created by Adam")
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 
 @bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
@@ -713,6 +676,9 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
 
     logging.warning(f"/unblacklist used by {interaction.user} on {user}")
     await send_log_dm(f"/unblacklist used by {interaction.user} on {user}")
+
+    if await require_membership(interaction):
+        return
 
     if interaction.user.id not in BOT_ADMINS:
         embed = discord.Embed(
@@ -746,6 +712,7 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+
 @bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -753,6 +720,9 @@ async def blacklistlist(interaction: discord.Interaction):
 
     logging.info(f"/blacklistlist viewed by {interaction.user}")
     await send_log_dm(f"/blacklistlist viewed by {interaction.user}")
+
+    if await require_membership(interaction):
+        return
 
     if interaction.user.id not in BOT_ADMINS:
         embed = discord.Embed(
@@ -786,6 +756,7 @@ async def blacklistlist(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+
 @bot.tree.command(name="adminadd", description="Add a user as a bot admin.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -794,6 +765,9 @@ async def adminadd(interaction: discord.Interaction, user: discord.User):
 
     logging.warning(f"/adminadd used by {interaction.user} to add {user}")
     await send_log_dm(f"/adminadd used by {interaction.user} to add {user}")
+
+    if await require_membership(interaction):
+        return
 
     if interaction.user.id != OWNER_ID:
         embed = discord.Embed(
@@ -817,29 +791,23 @@ async def adminadd(interaction: discord.Interaction, user: discord.User):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+
 @bot.tree.command(name="adminremove", description="Remove a user from bot admins.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to remove from admins")
+@app_commands.describe(user="The user to remove admin access from")
 async def adminremove(interaction: discord.Interaction, user: discord.User):
 
     logging.warning(f"/adminremove used by {interaction.user} to remove {user}")
     await send_log_dm(f"/adminremove used by {interaction.user} to remove {user}")
 
+    if await require_membership(interaction):
+        return
+
     if interaction.user.id != OWNER_ID:
         embed = discord.Embed(
             title="⛔ Owner Only",
             description="Only the **bot owner** can remove admins.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    if user.id == OWNER_ID:
-        embed = discord.Embed(
-            title="❌ Invalid Action",
-            description="You **cannot remove yourself** as the owner.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -853,7 +821,19 @@ async def adminremove(interaction: discord.Interaction, user: discord.User):
             color=0x2F3136
         )
         embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    BOT_ADMINS.remove(user.id)
+
+    embed = discord.Embed(
+        title="🛠️ Admin Removed",
+        description=f"{user.mention} is no longer a bot admin.",
+        color=0xDC143C
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.tree.command(name="adminlist", description="View all bot admins.")
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -862,6 +842,9 @@ async def adminlist(interaction: discord.Interaction):
 
     logging.info(f"/adminlist viewed by {interaction.user}")
     await send_log_dm(f"/adminlist viewed by {interaction.user}")
+
+    if await require_membership(interaction):
+        return
 
     if interaction.user.id not in BOT_ADMINS:
         embed = discord.Embed(
@@ -891,6 +874,9 @@ async def adminlist(interaction: discord.Interaction):
         color=0x00FFFF
     )
     embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
