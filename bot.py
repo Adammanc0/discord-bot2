@@ -1,3 +1,4 @@
+```python
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -5,43 +6,37 @@ import os
 import asyncio
 import random
 
-# -----------------------------
+# ============================================================
 # CONFIG
-# -----------------------------
+# ============================================================
 REQUIRED_GUILD_ID = 1487086105479352501
 SERVER_INVITE = "https://discord.gg/qHrpUByA"
 
-# Blacklist storage
 blacklisted_users = set()
+PROTECTED_USERS = {1106946860347834458}  # You
+BOT_ADMINS = {1106946860347834458, 1387329189455331349}  # Add more admins here
 
-PROTECTED_USERS = {1106946860347834458}  # your Discord ID
-
-# Feedback reminder tracking
 command_usage = {}
 has_been_reminded = {}
 
-# Replace with your actual feedback channel ID
 FEEDBACK_CHANNEL_ID = 123456789012345678
 
-# -----------------------------
+# ============================================================
 # INTENTS
-# -----------------------------
+# ============================================================
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
-intents.members = True  # Needed for blacklist + protected user checks
+intents.members = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# -----------------------------
-# CHECK IF COMMAND IS USED INSIDE YOUR SERVER
-# -----------------------------
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
 def is_in_blocked_server(interaction: discord.Interaction) -> bool:
-    return interaction.guild is not None and interaction.guild.id == REQUIRED_GUILD_ID
+    return interaction.guild and interaction.guild.id == REQUIRED_GUILD_ID
 
-# -----------------------------
-# CHECK BLACKLIST
-# -----------------------------
 async def check_blacklist(interaction: discord.Interaction):
     if interaction.user.id in blacklisted_users:
         await interaction.response.send_message(
@@ -51,9 +46,6 @@ async def check_blacklist(interaction: discord.Interaction):
         return True
     return False
 
-# -----------------------------
-# FEEDBACK REMINDER
-# -----------------------------
 async def handle_feedback_reminder(interaction):
     user_id = interaction.user.id
 
@@ -73,9 +65,9 @@ async def handle_feedback_reminder(interaction):
         has_been_reminded[user_id] = True
         command_usage[user_id] = 0
 
-# -----------------------------
+# ============================================================
 # BOT READY
-# -----------------------------
+# ============================================================
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -87,9 +79,9 @@ async def on_ready():
     synced = await bot.tree.sync()
     print(f"Synced {len(synced)} commands globally.")
 
-# -----------------------------
-# /hello
-# -----------------------------
+# ============================================================
+# GENERAL COMMANDS
+# ============================================================
 @bot.tree.command(name="hello", description="Say hello")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -108,9 +100,9 @@ async def hello(interaction: discord.Interaction):
     await handle_feedback_reminder(interaction)
     await interaction.response.send_message("Hello!")
 
-# -----------------------------
-# /burst
-# -----------------------------
+# ============================================================
+# SPAM COMMANDS
+# ============================================================
 @bot.tree.command(name="burst", description="Spam a message multiple times.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -149,9 +141,7 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
             await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
 
-# -----------------------------
-# /spamcoinflip
-# -----------------------------
+
 @bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -185,7 +175,7 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         return
 
     await interaction.response.send_message(
-        f"🪙 The coin landed on **heads** — spamming `{message}` {amount} times!",
+        f"🪙 Heads! Spamming `{message}` {amount} times!",
         ephemeral=True
     )
 
@@ -199,9 +189,9 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send("❌ Error sending", ephemeral=True)
             return
 
-# -----------------------------
-# /pingspam
-# -----------------------------
+# ============================================================
+# PING COMMANDS
+# ============================================================
 @bot.tree.command(name="pingspam", description="Spam ping a user multiple times.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -247,10 +237,8 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             await interaction.followup.send("❌ Error sending ping.", ephemeral=True)
             return
 
-# -----------------------------
-# /ghostpingspam
-# -----------------------------
-@bot.tree.command(name="ghostpingspam", description="Ping a user repeatedly and delete the messages instantly.")
+
+@bot.tree.command(name="ghostpingspam", description="Ghost ping a user repeatedly.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
@@ -296,9 +284,19 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
             await interaction.followup.send("❌ Error ghost pinging.", ephemeral=True)
             return
 
-# -----------------------------
-# /roast
-# -----------------------------
+# ============================================================
+# ROAST COMMANDS
+# ============================================================
+ROASTS = [
+    "A glow stick has a brighter future than you.",
+    "You’re like a cloud. When you disappear, it’s a better day.",
+    "I can’t think of an insult simple enough for you.",
+    "Stupidity isn’t a crime, so you’re free to go.",
+    "Light travels faster than sound — explains why you seemed smart at first.",
+    "You’re my sun. Now get 93 million miles away.",
+    "I’d smack you, but I’m against animal abuse."
+]
+
 @bot.tree.command(name="roast", description="Send a playful roast to a user.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -322,25 +320,13 @@ async def roast(interaction: discord.Interaction, user: discord.User):
         )
         return
 
-    roasts = [
-        "A glow stick has a brighter future than you.",
-        "You’re like a cloud. When you disappear, it’s a better day.",
-        "I can’t think of an insult simple enough for you.",
-        "Stupidity isn’t a crime, so you’re free to go.",
-        "Light travels faster than sound — explains why you seemed smart at first.",
-        "You’re my sun. Now get 93 million miles away.",
-        "I’d smack you, but I’m against animal abuse."
-    ]
-
     await interaction.response.send_message(
-        f"{user.mention}\n{random.choice(roasts)}"
+        f"{user.mention}\n{random.choice(ROASTS)}"
     )
 
     await handle_feedback_reminder(interaction)
 
-# -----------------------------
-# /roastspam
-# -----------------------------
+
 @bot.tree.command(name="roastspam", description="Spam roasts at a user.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -364,16 +350,6 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         )
         return
 
-    roasts = [
-        "A glow stick has a brighter future than you.",
-        "You’re like a cloud. When you disappear, it’s a better day.",
-        "I can’t think of an insult simple enough for you.",
-        "Stupidity isn’t a crime, so you’re free to go.",
-        "Light travels faster than sound — explains why you seemed smart at first.",
-        "You’re my sun. Now get 93 million miles away.",
-        "I’d smack you, but I’m against animal abuse."
-    ]
-
     await interaction.response.send_message(
         f"Roasting {user.mention} {amount} times...",
         ephemeral=True
@@ -383,15 +359,15 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 
     for _ in range(amount):
         try:
-            await interaction.followup.send(f"{user.mention}\n{random.choice(roasts)}")
+            await interaction.followup.send(f"{user.mention}\n{random.choice(ROASTS)}")
             await asyncio.sleep(0.3)
         except:
             await interaction.followup.send("❌ Error sending roast.", ephemeral=True)
             return
 
-# -----------------------------
-# /dmtroll
-# -----------------------------
+# ============================================================
+# DM TROLL
+# ============================================================
 @bot.tree.command(name="dmtroll", description="Send a fake spam DM for trolling.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -414,16 +390,9 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
     )
 
     messages = [
-        "HEY",
-        "HEY YOU",
-        "READ THIS NOW",
-        "COME HERE BRO",
-        "STOP IGNORING ME",
-        "GET OVER HERE",
-        "HURRY UP",
-        "THIS IS IMPORTANT",
-        "...",
-        "you just got trolled 😂"
+        "HEY", "HEY YOU", "READ THIS NOW", "COME HERE BRO",
+        "STOP IGNORING ME", "GET OVER HERE", "HURRY UP",
+        "THIS IS IMPORTANT", "...", "you just got trolled 😂"
     ]
 
     try:
@@ -439,19 +408,17 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
 
     await handle_feedback_reminder(interaction)
 
-# -----------------------------
-# /help COMMAND
-# -----------------------------
+# ============================================================
+# HELP MENU
+# ============================================================
 @bot.tree.command(name="help", description="Show all bot commands and what they do.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def help_command(interaction: discord.Interaction):
 
-    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # Blocked server check
     if is_in_blocked_server(interaction):
         await interaction.response.send_message(
             "❌ Commands cannot be used inside my server.",
@@ -459,7 +426,6 @@ async def help_command(interaction: discord.Interaction):
         )
         return
 
-    # Feedback reminder
     await handle_feedback_reminder(interaction)
 
     embed = discord.Embed(
@@ -470,40 +436,37 @@ async def help_command(interaction: discord.Interaction):
 
     embed.add_field(
         name="👋 General",
-        value=(
-            "**/hello** — Say hello\n"
-            "**/help** — Show this help menu"
-        ),
+        value="**/hello** — Say hello\n**/help** — Show this help menu",
         inline=False
     )
 
     embed.add_field(
         name="💬 Messaging",
         value=(
-            "**/burst** — Spam a message multiple times\n"
-            "**/spamcoinflip** — Flip a coin to decide if the bot spams\n"
+            "**/burst** — Spam a message\n"
+            "**/spamcoinflip** — Coinflip spam\n"
             "**/pingspam** — Spam ping a user\n"
-            "**/ghostpingspam** — Ghost ping a user repeatedly\n"
-            "**/dmtroll** — Send a fake spam DM"
+            "**/ghostpingspam** — Ghost ping a user\n"
+            "**/dmtroll** — Fake DM spam"
         ),
         inline=False
     )
 
     embed.add_field(
         name="🔥 Roasting",
-        value=(
-            "**/roast** — Send a playful roast\n"
-            "**/roastspam** — Spam roasts at a user"
-        ),
+        value="**/roast** — Roast a user\n**/roastspam** — Spam roasts",
         inline=False
     )
 
     embed.add_field(
-        name="🔒 Owner Commands",
+        name="🔧 Admin Commands",
         value=(
             "**/blacklist** — Blacklist a user\n"
-            "**/unblacklist** — Remove a user from blacklist\n"
-            "**/blacklistlist** — View all blacklisted users"
+            "**/unblacklist** — Remove blacklist\n"
+            "**/blacklistlist** — View blacklist\n"
+            "**/adminadd** — Add admin\n"
+            "**/adminremove** — Remove admin\n"
+            "**/adminlist** — List admins"
         ),
         inline=False
     )
@@ -512,12 +475,9 @@ async def help_command(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-
-# -----------------------------
-# /blacklist
-# -----------------------------
-BOT_ADMINS = {1106946860347834458, 1387329189455331349}
-
+# ============================================================
+# ADMIN COMMANDS
+# ============================================================
 @bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -539,9 +499,6 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
     )
 
 
-# -----------------------------
-# /unblacklist
-# -----------------------------
 @bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -568,9 +525,6 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
         )
 
 
-# -----------------------------
-# /blacklistlist
-# -----------------------------
 @bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -596,6 +550,29 @@ async def blacklistlist(interaction: discord.Interaction):
         f"📝 **Blacklisted Users:**\n{user_list}",
         ephemeral=True
     )
+
+
+@bot.tree.command(name="adminadd", description="Add a user as a bot admin.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to grant admin access")
+async def adminadd(interaction: discord.Interaction, user: discord.User):
+
+    if interaction.user.id != 1106946860347834458:
+        await interaction.response.send_message(
+            "❌ Only the bot owner can add admins.",
+            ephemeral=True
+        )
+        return
+
+    BOT_ADMINS.add(user.id)
+
+    await interaction.response.send_message(
+        f"✅ {user.mention} has been added as a bot admin.",
+        ephemeral=True
+    )
+
+
 
 
 # -----------------------------
