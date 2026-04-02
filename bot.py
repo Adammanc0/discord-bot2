@@ -550,6 +550,26 @@ async def blacklistlist(interaction: discord.Interaction):
         ephemeral=True
     )
 
+@bot.tree.command(name="adminadd", description="Add a user as a bot admin.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to grant admin access")
+async def adminadd(interaction: discord.Interaction, user: discord.User):
+
+    if interaction.user.id != 1106946860347834458:
+        await interaction.response.send_message(
+            "❌ Only the bot owner can add admins.",
+            ephemeral=True
+        )
+        return
+
+    BOT_ADMINS.add(user.id)
+
+    await interaction.response.send_message(
+        f"✅ {user.mention} has been added as a bot admin.",
+        ephemeral=True
+    )
+
 
 @bot.tree.command(name="adminremove", description="Remove a user from bot admins.")
 @app_commands.allowed_installs(guilds=True, users=True)
