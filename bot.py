@@ -324,6 +324,64 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
             return
 
 
+@bot.tree.command(name="gifspam", description="Spam a GIF multiple times.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(gif_url="Direct link to the GIF", amount="How many times to send it")
+async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
+
+    logging.info(f"/gifspam used by {interaction.user} | amount={amount}")
+    await send_log_dm(f"/gifspam used by {interaction.user} | amount={amount}")
+
+    if await require_membership(interaction):
+        return
+
+    if await check_blacklist(interaction):
+        return
+
+    if amount > 20:
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum GIF spam amount is **20**.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    confirm = discord.Embed(
+        title="🖼️ GIF Spam Activated",
+        description=f"Sending your GIF **{amount} times**!",
+        color=0x39FF14
+    )
+    confirm.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=confirm, ephemeral=True)
+
+    await handle_feedback_reminder(interaction)
+
+    for i in range(amount):
+        try:
+            emb = discord.Embed(
+                title="🖼️ GIF Spam",
+                description=f"GIF #{i+1}",
+                color=0x00FFFF
+            )
+            emb.set_image(url=gif_url)
+            emb.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=emb)
+            await asyncio.sleep(0.3)
+        except:
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your GIFs.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            return
+
+
+
 
 
 # ============================================================
