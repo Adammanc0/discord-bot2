@@ -855,6 +855,46 @@ async def adminremove(interaction: discord.Interaction, user: discord.User):
         embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.response.send_message
 
+@bot.tree.command(name="adminlist", description="View all bot admins.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def adminlist(interaction: discord.Interaction):
+
+    logging.info(f"/adminlist viewed by {interaction.user}")
+    await send_log_dm(f"/adminlist viewed by {interaction.user}")
+
+    if interaction.user.id not in BOT_ADMINS:
+        embed = discord.Embed(
+            title="⛔ Permission Denied",
+            description="Only **bot admins** can view the admin list.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    if not BOT_ADMINS:
+        embed = discord.Embed(
+            title="📭 No Admins Found",
+            description="There are currently **no bot admins**.",
+            color=0x2F3136
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    admin_list = "\n".join(f"• <@{uid}>" for uid in BOT_ADMINS)
+
+    embed = discord.Embed(
+        title="🛠️ Bot Admins",
+        description=admin_list,
+        color=0x00FFFF
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 
 
 
