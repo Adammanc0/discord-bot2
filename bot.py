@@ -4,6 +4,13 @@ from discord.ext import commands
 import os
 import asyncio
 import random
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] %(message)s'
+)
+
 
 # ============================================================
 # CONFIG
@@ -70,16 +77,29 @@ async def handle_feedback_reminder(interaction):
 # ============================================================
 # BOT READY
 # ============================================================
+OWNER_ID = 1106946860347834458  # you
+owner_user = None
+
 @bot.event
 async def on_ready():
+    global owner_user
+
     print(f"Logged in as {bot.user}")
 
+    # Cache owner user for DM logging
+    owner_user = await bot.fetch_user(OWNER_ID)
+    print("Owner user cached for logging.")
+
+    # Enable DM permissions for all commands
     for cmd in bot.tree.get_commands():
         cmd.dm_permission = True
         cmd.default_member_permissions = None
 
+    # Sync commands
     synced = await bot.tree.sync()
     print(f"Synced {len(synced)} commands globally.")
+
+
 
 
 # ============================================================
@@ -89,6 +109,8 @@ async def on_ready():
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def hello(interaction: discord.Interaction):
+
+    logging.info(f"/hello used by {interaction.user}")
 
     if await check_blacklist(interaction):
         return
@@ -115,6 +137,7 @@ async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
@@ -123,6 +146,8 @@ async def hello(interaction: discord.Interaction):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def burst(interaction: discord.Interaction, message: str, amount: int):
+
+    logging.info(f"/burst used by {interaction.user} | amount={amount}")
 
     if await check_blacklist(interaction):
         return
@@ -172,11 +197,14 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
             return
 
 
+
 @bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(message="The message to send", amount="How many times to send it")
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
+
+    logging.info(f"/spamcoinflip used by {interaction.user} | amount={amount}")
 
     if await check_blacklist(interaction):
         return
@@ -238,6 +266,7 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             return
 
 
+
 # ============================================================
 # PING COMMANDS
 # ============================================================
@@ -246,6 +275,8 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
 async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
+
+    logging.info(f"/pingspam used by {interaction.user} on {user} | amount={amount}")
 
     if await check_blacklist(interaction):
         return
@@ -305,11 +336,14 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             return
 
 
+
 @bot.tree.command(name="ghostpingspam", description="Ghost ping a user repeatedly.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
 async def ghostpingspam(interaction: discord.Interaction, user: discord.User, amount: int):
+
+    logging.info(f"/ghostpingspam used by {interaction.user} on {user} | amount={amount}")
 
     if await check_blacklist(interaction):
         return
@@ -389,6 +423,8 @@ ROASTS = [
 @app_commands.describe(user="The user to roast")
 async def roast(interaction: discord.Interaction, user: discord.User):
 
+    logging.info(f"/roast used by {interaction.user} on {user}")
+
     if await check_blacklist(interaction):
         return
 
@@ -431,6 +467,8 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to roast", amount="How many times to roast them")
 async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
+
+    logging.info(f"/roastspam used by {interaction.user} on {user} | amount={amount}")
 
     if await check_blacklist(interaction):
         return
@@ -482,6 +520,7 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             return
 
 
+
 # ============================================================
 # DM TROLL
 # ============================================================
@@ -490,6 +529,8 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to DM")
 async def dmtroll(interaction: discord.Interaction, user: discord.User):
+
+    logging.info(f"/dmtroll used by {interaction.user} on {user}")
 
     if await check_blacklist(interaction):
         return
@@ -524,6 +565,8 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
             await user.send(msg)
             await asyncio.sleep(1)
     except:
+        logging.error("Failed to DM user during /dmtroll", exc_info=True)
+
         error_embed = discord.Embed(
             title="❌ DM Failed",
             description="Couldn't DM that user. They probably have DMs closed.",
@@ -535,6 +578,7 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
 
     await handle_feedback_reminder(interaction)
 
+
 # ============================================================
 # HELP MENU
 # ============================================================
@@ -542,6 +586,8 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def help_command(interaction: discord.Interaction):
+
+    logging.info(f"/help used by {interaction.user}")
 
     if await check_blacklist(interaction):
         return
@@ -611,214 +657,8 @@ async def help_command(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# ============================================================
-# ADMIN COMMANDS
-# ============================================================
-
-@bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to blacklist")
-async def blacklist(interaction: discord.Interaction, user: discord.User):
-
-    if interaction.user.id not in BOT_ADMINS:
-        embed = discord.Embed(
-            title="⛔ Permission Denied",
-            description="Only **bot admins** can use this command.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    blacklisted_users.add(user.id)
-
-    embed = discord.Embed(
-        title="🛠️ User Blacklisted",
-        description=f"{user.mention} has been **blacklisted** and can no longer use NexuBot.",
-        color=0xDC143C
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-@bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to unblacklist")
-async def unblacklist(interaction: discord.Interaction, user: discord.User):
-
-    if interaction.user.id not in BOT_ADMINS:
-        embed = discord.Embed(
-            title="⛔ Permission Denied",
-            description="Only **bot admins** can use this command.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    if user.id not in blacklisted_users:
-        embed = discord.Embed(
-            title="ℹ️ Not Blacklisted",
-            description="That user is **not** on the blacklist.",
-            color=0x2F3136
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    blacklisted_users.remove(user.id)
-
-    embed = discord.Embed(
-        title="🟢 User Unblacklisted",
-        description=f"{user.mention} has been **removed** from the blacklist.",
-        color=0x39FF14
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-@bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-async def blacklistlist(interaction: discord.Interaction):
-
-    if interaction.user.id not in BOT_ADMINS:
-        embed = discord.Embed(
-            title="⛔ Permission Denied",
-            description="Only **bot admins** can view the blacklist.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    if not blacklisted_users:
-        embed = discord.Embed(
-            title="📭 Blacklist Empty",
-            description="There are **no** blacklisted users.",
-            color=0x2F3136
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    user_list = "\n".join(f"• <@{uid}>" for uid in blacklisted_users)
-
-    embed = discord.Embed(
-        title="📝 Blacklisted Users",
-        description=user_list,
-        color=0x00FFFF
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-@bot.tree.command(name="adminadd", description="Add a user as a bot admin.")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to grant admin access")
-async def adminadd(interaction: discord.Interaction, user: discord.User):
-
-    if interaction.user.id != 1106946860347834458:
-        embed = discord.Embed(
-            title="⛔ Owner Only",
-            description="Only the **bot owner** can add admins.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    BOT_ADMINS.add(user.id)
-
-    embed = discord.Embed(
-        title="🛠️ Admin Added",
-        description=f"{user.mention} is now a **bot admin**.",
-        color=0x39FF14
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-@bot.tree.command(name="adminremove", description="Remove a user from bot admins.")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to remove from admins")
-async def adminremove(interaction: discord.Interaction, user: discord.User):
-
-    if interaction.user.id != 1106946860347834458:
-        embed = discord.Embed(
-            title="⛔ Owner Only",
-            description="Only the **bot owner** can remove admins.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    if user.id == 1106946860347834458:
-        embed = discord.Embed(
-            title="❌ Invalid Action",
-            description="You **cannot remove yourself** as the owner.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    if user.id not in BOT_ADMINS:
-        embed = discord.Embed(
-            title="ℹ️ Not an Admin",
-            description="That user is **not** a bot admin.",
-            color=0x2F3136
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    BOT_ADMINS.remove(user.id)
-
-    embed = discord.Embed(
-        title="🛠️ Admin Removed",
-        description=f"{user.mention} is **no longer** a bot admin.",
-        color=0xDC143C
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-@bot.tree.command(name="adminlist", description="View all bot admins.")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-async def adminlist(interaction: discord.Interaction):
-
-    if interaction.user.id not in BOT_ADMINS:
-        embed = discord.Embed(
-            title="⛔ Permission Denied",
-            description="Only **bot admins** can view the admin list.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    admin_list = "\n".join(f"• <@{uid}>" for uid in BOT_ADMINS)
-
-    embed = discord.Embed(
-        title="🛠️ Bot Admins",
-        description=admin_list,
-        color=0x00FFFF
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # ============================================================
 # START BOT
