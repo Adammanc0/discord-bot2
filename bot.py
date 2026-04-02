@@ -472,4 +472,4 @@ async def help_command(interaction: discord.Interaction):
 
     embed.set_footer(text="NexuBot • Created by Adam")
 
-    await interaction.response.send_message(embed=embed, ephemeral
+    await interaction.response.send_message(embed=embed, ephemeral)
