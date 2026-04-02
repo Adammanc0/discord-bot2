@@ -156,7 +156,7 @@ async def hello(interaction: discord.Interaction):
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
-@bot.tree.command(name="burst", description="Spam a message multiple times.")
+@bot.tree.command(name="burst", description="Spam a message multiple times 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(message="The message to send", amount="How many times to send it")
@@ -171,10 +171,10 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
     if await check_blacklist(interaction):
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum burst amount is **20**.",
+            description="Maximum burst amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -209,7 +209,7 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 
 
 
-@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message.")
+@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(message="The message to send", amount="How many times to send it")
@@ -224,10 +224,10 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
     if await check_blacklist(interaction):
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum spam amount is **20**.",
+            description="Maximum spam amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -270,7 +270,7 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
 
-@bot.tree.command(name="embedspam", description="Spam an embed message multiple times.")
+@bot.tree.command(name="embedspam", description="Spam an embed message multiple times 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(message="The message to put in the embed", amount="How many embeds to send")
@@ -285,10 +285,10 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
     if await check_blacklist(interaction):
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum embed spam amount is **20**.",
+            description="Maximum embed spam amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -326,7 +326,7 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
             return
 
 
-@bot.tree.command(name="gifspam", description="Spam a GIF multiple times.")
+@bot.tree.command(name="gifspam", description="Spam a GIF multiple times 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(gif_url="Direct link to the GIF", amount="How many times to send it")
@@ -341,10 +341,10 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
     if await check_blacklist(interaction):
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum GIF spam amount is **20**.",
+            description="Maximum GIF spam amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -382,21 +382,22 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 # ============================================================
 
 CHAOS_LINES = [
-    "Fuck you ",
-    "Why are you here, where your not wanted",
-    "Wanker move on",
-    "Why are you in my areas",
-    "HOW DID U LIKE THAT?",
-    "your fucking brain is fried",
-    "why are u smelling colours",
-    "Can I hurt you?"
+    "bro what are you even doing",
+    "your brain is buffering again",
+    "you walked into the wrong timeline",
+    "the simulation is disappointed in you",
+    "your WiFi has more stability than you",
+    "you smell like confusion",
+    "gravity is optional for you today",
+    "your energy is… concerning"
 ]
 
+
 CHAOS_GIFS = [
-    "https://cdn.discordapp.com/attachments/467669751817043978/1366058429470474240/received_4007729869456254.gif",
-    "https://cdn.discordapp.com/attachments/1164766632971870298/1480814359675535471/attachment-43.gif",
-    "https://media.discordapp.net/attachments/870868123975315499/877053251814588416/yummy.gif",
-    "https://tenor.com/view/dick-smash-ownage-gif-5619114"
+    "https://media.tenor.com/2roX3uxz_68AAAAC/cat-meme.gif",
+    "https://media.tenor.com/HL6pYVwqSxMAAAAC/goofy-ahh.gif",
+    "https://media.tenor.com/6ZCqJvPBhV4AAAAC/monkey-spinning.gif",
+    "https://media.tenor.com/0WvWw2X2gKcAAAAC/brain-melt.gif"
 ]
 
 CHAOS_EMOJIS = ["😂", "💀", "🤨", "🔥", "😈", "🤡", "👀", "😵‍💫"]
@@ -487,7 +488,7 @@ async def superchaos(interaction: discord.Interaction):
 # ============================================================
 # PING COMMANDS
 # ============================================================
-@bot.tree.command(name="pingspam", description="Spam ping a user multiple times.")
+@bot.tree.command(name="pingspam", description="Spam ping a user multiple times 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
@@ -512,10 +513,10 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum ping spam amount is **20**.",
+            description="Maximum ping spam amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -548,7 +549,7 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 
 
 
-@bot.tree.command(name="ghostpingspam", description="Ghost ping a user repeatedly.")
+@bot.tree.command(name="ghostpingspam", description="Ghost ping a user repeatedly 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to ghost ping", amount="How many times to ghost ping them")
@@ -573,10 +574,10 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum ghost ping amount is **20**.",
+            description="Maximum ghost ping amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -651,7 +652,7 @@ async def roast(interaction: discord.Interaction, user: discord.User):
     await handle_feedback_reminder(interaction)
 
 
-@bot.tree.command(name="roastspam", description="Spam roasts at a user.")
+@bot.tree.command(name="roastspam", description="Spam roasts at a user 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to roast", amount="How many times to roast them")
@@ -666,10 +667,10 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
     if await check_blacklist(interaction):
         return
 
-    if amount > 20:
+    if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum roast spam amount is **20**.",
+            description="Maximum roast spam amount is **5**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
