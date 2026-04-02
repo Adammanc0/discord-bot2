@@ -13,7 +13,7 @@ SERVER_INVITE = "https://discord.gg/qHrpUByA"
 
 blacklisted_users = set()
 PROTECTED_USERS = {1106946860347834458}  # You
-BOT_ADMINS = {1106946860347834458, 1387329189455331349}  # Add more admins here
+BOT_ADMINS = {1106946860347834458, 1387329189455331349}
 
 command_usage = {}
 has_been_reminded = {}
@@ -38,10 +38,13 @@ def is_in_blocked_server(interaction: discord.Interaction) -> bool:
 
 async def check_blacklist(interaction: discord.Interaction):
     if interaction.user.id in blacklisted_users:
-        await interaction.response.send_message(
-            "❌ You are blacklisted from using this bot.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Access Denied",
+            description="You are **blacklisted** from using NexuBot.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return True
     return False
 
@@ -78,6 +81,7 @@ async def on_ready():
     synced = await bot.tree.sync()
     print(f"Synced {len(synced)} commands globally.")
 
+
 # ============================================================
 # GENERAL COMMANDS
 # ============================================================
@@ -90,14 +94,26 @@ async def hello(interaction: discord.Interaction):
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     await handle_feedback_reminder(interaction)
-    await interaction.response.send_message("Hello!")
+
+    embed = discord.Embed(
+        title="👋 Hello!",
+        description="Hope you're having a great day.",
+        color=0x00FFFF
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 # ============================================================
 # SPAM COMMANDS
@@ -112,23 +128,32 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if amount > 20:
-        await interaction.response.send_message(
-            "❌ Maximum burst amount is 20.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum burst amount is **20**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"Sending your message {amount} times!",
-        ephemeral=True
+    embed = discord.Embed(
+        title="💥 Burst Activated",
+        description=f"Sending your message **{amount} times**!",
+        color=0x39FF14
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
@@ -137,7 +162,13 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
             await interaction.followup.send(message)
             await asyncio.sleep(0.3)
         except:
-            await interaction.followup.send("❌ Error sending", ephemeral=True)
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your burst messages.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
 
 
@@ -151,32 +182,44 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if amount > 20:
-        await interaction.response.send_message(
-            "❌ Maximum burst amount is 20.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum spam amount is **20**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     result = random.choice(["heads", "tails"])
 
     if result == "tails":
-        await interaction.response.send_message(
-            "🪙 The coin landed on **tails** — no spam this time.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🪙 Coinflip Result: Tails",
+            description="No spam this time.",
+            color=0x2F3136
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"🪙 Heads! Spamming `{message}` {amount} times!",
-        ephemeral=True
+    embed = discord.Embed(
+        title="🪙 Coinflip Result: Heads!",
+        description=f"Spamming `{message}` **{amount} times**!",
+        color=0x39FF14
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
@@ -185,8 +228,15 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
             await interaction.followup.send(message)
             await asyncio.sleep(0.3)
         except:
-            await interaction.followup.send("❌ Error sending", ephemeral=True)
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your spam messages.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 # ============================================================
 # PING COMMANDS
@@ -201,30 +251,42 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
-            "❌ You cannot target that user.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot target this user.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if amount > 20:
-        await interaction.response.send_message(
-            "❌ Maximum ping spam amount is 20.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum ping spam amount is **20**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"Pinging {user.mention} {amount} times!",
-        ephemeral=True
+    embed = discord.Embed(
+        title="🔔 Ping Spam Activated",
+        description=f"Pinging {user.mention} **{amount} times**!",
+        color=0x39FF14
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
@@ -233,7 +295,13 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             await interaction.followup.send(user.mention)
             await asyncio.sleep(0.3)
         except:
-            await interaction.followup.send("❌ Error sending ping.", ephemeral=True)
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending pings.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
 
 
@@ -247,30 +315,42 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
-            "❌ You cannot target that user.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot target this user.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if amount > 20:
-        await interaction.response.send_message(
-            "❌ Maximum ghost ping amount is 20.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum ghost ping amount is **20**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"Ghost pinging {user.mention} {amount} times...",
-        ephemeral=True
+    embed = discord.Embed(
+        title="👻 Ghost Ping Spam",
+        description=f"Ghost pinging {user.mention} **{amount} times**...",
+        color=0x8A2BE2
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
@@ -280,8 +360,15 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
             await msg.delete()
             await asyncio.sleep(0.25)
         except:
-            await interaction.followup.send("❌ Error ghost pinging.", ephemeral=True)
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue ghost pinging.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 # ============================================================
 # ROAST COMMANDS
@@ -306,22 +393,35 @@ async def roast(interaction: discord.Interaction, user: discord.User):
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
-            "❌ You cannot target that user.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot roast this user.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"{user.mention}\n{random.choice(ROASTS)}"
+    roast_line = random.choice(ROASTS)
+
+    embed = discord.Embed(
+        title="🔥 Roast Delivered",
+        description=f"{user.mention}\n\n**{roast_line}**",
+        color=0x8A2BE2
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed)
 
     await handle_feedback_reminder(interaction)
 
@@ -336,33 +436,51 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if amount > 20:
-        await interaction.response.send_message(
-            "❌ Maximum roast spam amount is 20.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum roast spam amount is **20**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"Roasting {user.mention} {amount} times...",
-        ephemeral=True
+    embed = discord.Embed(
+        title="🔥 Roast Spam Activated",
+        description=f"Roasting {user.mention} **{amount} times**...",
+        color=0x8A2BE2
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
     for _ in range(amount):
         try:
-            await interaction.followup.send(f"{user.mention}\n{random.choice(ROASTS)}")
+            roast_line = random.choice(ROASTS)
+            await interaction.followup.send(f"{user.mention}\n**{roast_line}**")
             await asyncio.sleep(0.3)
         except:
-            await interaction.followup.send("❌ Error sending roast.", ephemeral=True)
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending roasts.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 # ============================================================
 # DM TROLL
@@ -377,16 +495,23 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
         return
 
     if user.id in PROTECTED_USERS:
-        await interaction.response.send_message(
-            "❌ You cannot target that user.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot troll this user.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    await interaction.response.send_message(
-        f"😈 Sending a totally real and serious message to {user.mention}...",
-        ephemeral=True
+    embed = discord.Embed(
+        title="😈 DM Troll Activated",
+        description=f"Sending a **totally real and serious** message to {user.mention}...",
+        color=0x8A2BE2
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     messages = [
         "HEY", "HEY YOU", "READ THIS NOW", "COME HERE BRO",
@@ -399,10 +524,13 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
             await user.send(msg)
             await asyncio.sleep(1)
     except:
-        await interaction.followup.send(
-            "❌ Couldn't DM that user (they probably have DMs closed).",
-            ephemeral=True
+        error_embed = discord.Embed(
+            title="❌ DM Failed",
+            description="Couldn't DM that user. They probably have DMs closed.",
+            color=0xDC143C
         )
+        error_embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.followup.send(embed=error_embed, ephemeral=True)
         return
 
     await handle_feedback_reminder(interaction)
@@ -419,10 +547,13 @@ async def help_command(interaction: discord.Interaction):
         return
 
     if is_in_blocked_server(interaction):
-        await interaction.response.send_message(
-            "❌ Commands cannot be used inside my server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="🚫 Command Blocked",
+            description="Commands cannot be used **inside my server**.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     await handle_feedback_reminder(interaction)
@@ -430,12 +561,15 @@ async def help_command(interaction: discord.Interaction):
     embed = discord.Embed(
         title="📘 NexuBot Help Menu",
         description="Here are all available commands:",
-        color=discord.Color.blue()
+        color=0x00FFFF
     )
 
     embed.add_field(
         name="👋 General",
-        value="**/hello** — Say hello\n**/help** — Show this help menu",
+        value=(
+            "**/hello** — Say hello\n"
+            "**/help** — Show this help menu"
+        ),
         inline=False
     )
 
@@ -453,12 +587,15 @@ async def help_command(interaction: discord.Interaction):
 
     embed.add_field(
         name="🔥 Roasting",
-        value="**/roast** — Roast a user\n**/roastspam** — Spam roasts",
+        value=(
+            "**/roast** — Roast a user\n"
+            "**/roastspam** — Spam roasts"
+        ),
         inline=False
     )
 
     embed.add_field(
-        name="🔧 Admin Commands",
+        name="🛠️ Admin Commands",
         value=(
             "**/blacklist** — Blacklist a user\n"
             "**/unblacklist** — Remove blacklist\n"
@@ -477,6 +614,7 @@ async def help_command(interaction: discord.Interaction):
 # ============================================================
 # ADMIN COMMANDS
 # ============================================================
+
 @bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -484,18 +622,25 @@ async def help_command(interaction: discord.Interaction):
 async def blacklist(interaction: discord.Interaction, user: discord.User):
 
     if interaction.user.id not in BOT_ADMINS:
-        await interaction.response.send_message(
-            "❌ Only bot admins can use this command.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Permission Denied",
+            description="Only **bot admins** can use this command.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     blacklisted_users.add(user.id)
 
-    await interaction.response.send_message(
-        f"✅ {user.mention} has been blacklisted.",
-        ephemeral=True
+    embed = discord.Embed(
+        title="🛠️ User Blacklisted",
+        description=f"{user.mention} has been **blacklisted** and can no longer use NexuBot.",
+        color=0xDC143C
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
@@ -505,23 +650,35 @@ async def blacklist(interaction: discord.Interaction, user: discord.User):
 async def unblacklist(interaction: discord.Interaction, user: discord.User):
 
     if interaction.user.id not in BOT_ADMINS:
-        await interaction.response.send_message(
-            "❌ Only bot admins can use this command.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Permission Denied",
+            description="Only **bot admins** can use this command.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if user.id in blacklisted_users:
-        blacklisted_users.remove(user.id)
-        await interaction.response.send_message(
-            f"✅ {user.mention} has been removed from the blacklist.",
-            ephemeral=True
+    if user.id not in blacklisted_users:
+        embed = discord.Embed(
+            title="ℹ️ Not Blacklisted",
+            description="That user is **not** on the blacklist.",
+            color=0x2F3136
         )
-    else:
-        await interaction.response.send_message(
-            "❌ That user is not blacklisted.",
-            ephemeral=True
-        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    blacklisted_users.remove(user.id)
+
+    embed = discord.Embed(
+        title="🟢 User Unblacklisted",
+        description=f"{user.mention} has been **removed** from the blacklist.",
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
@@ -530,25 +687,36 @@ async def unblacklist(interaction: discord.Interaction, user: discord.User):
 async def blacklistlist(interaction: discord.Interaction):
 
     if interaction.user.id not in BOT_ADMINS:
-        await interaction.response.send_message(
-            "❌ Only bot admins can use this command.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Permission Denied",
+            description="Only **bot admins** can view the blacklist.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if not blacklisted_users:
-        await interaction.response.send_message(
-            "📭 The blacklist is empty.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="📭 Blacklist Empty",
+            description="There are **no** blacklisted users.",
+            color=0x2F3136
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    user_list = "\n".join(f"<@{uid}>" for uid in blacklisted_users)
+    user_list = "\n".join(f"• <@{uid}>" for uid in blacklisted_users)
 
-    await interaction.response.send_message(
-        f"📝 **Blacklisted Users:**\n{user_list}",
-        ephemeral=True
+    embed = discord.Embed(
+        title="📝 Blacklisted Users",
+        description=user_list,
+        color=0x00FFFF
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 @bot.tree.command(name="adminadd", description="Add a user as a bot admin.")
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -557,18 +725,25 @@ async def blacklistlist(interaction: discord.Interaction):
 async def adminadd(interaction: discord.Interaction, user: discord.User):
 
     if interaction.user.id != 1106946860347834458:
-        await interaction.response.send_message(
-            "❌ Only the bot owner can add admins.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Owner Only",
+            description="Only the **bot owner** can add admins.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     BOT_ADMINS.add(user.id)
 
-    await interaction.response.send_message(
-        f"✅ {user.mention} has been added as a bot admin.",
-        ephemeral=True
+    embed = discord.Embed(
+        title="🛠️ Admin Added",
+        description=f"{user.mention} is now a **bot admin**.",
+        color=0x39FF14
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(name="adminremove", description="Remove a user from bot admins.")
@@ -578,30 +753,45 @@ async def adminadd(interaction: discord.Interaction, user: discord.User):
 async def adminremove(interaction: discord.Interaction, user: discord.User):
 
     if interaction.user.id != 1106946860347834458:
-        await interaction.response.send_message(
-            "❌ Only the bot owner can remove admins.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Owner Only",
+            description="Only the **bot owner** can remove admins.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if user.id == 1106946860347834458:
-        await interaction.response.send_message(
-            "❌ You cannot remove yourself as the owner.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="❌ Invalid Action",
+            description="You **cannot remove yourself** as the owner.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if user.id in BOT_ADMINS:
-        BOT_ADMINS.remove(user.id)
-        await interaction.response.send_message(
-            f"✅ {user.mention} is no longer a bot admin.",
-            ephemeral=True
+    if user.id not in BOT_ADMINS:
+        embed = discord.Embed(
+            title="ℹ️ Not an Admin",
+            description="That user is **not** a bot admin.",
+            color=0x2F3136
         )
-    else:
-        await interaction.response.send_message(
-            "❌ That user is not an admin.",
-            ephemeral=True
-        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    BOT_ADMINS.remove(user.id)
+
+    embed = discord.Embed(
+        title="🛠️ Admin Removed",
+        description=f"{user.mention} is **no longer** a bot admin.",
+        color=0xDC143C
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(name="adminlist", description="View all bot admins.")
@@ -610,30 +800,34 @@ async def adminremove(interaction: discord.Interaction, user: discord.User):
 async def adminlist(interaction: discord.Interaction):
 
     if interaction.user.id not in BOT_ADMINS:
-        await interaction.response.send_message(
-            "❌ Only bot admins can view the admin list.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="⛔ Permission Denied",
+            description="Only **bot admins** can view the admin list.",
+            color=0xDC143C
         )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if not BOT_ADMINS:
-        await interaction.response.send_message(
-            "📭 No admins found.",
-            ephemeral=True
-        )
-        return
+    admin_list = "\n".join(f"• <@{uid}>" for uid in BOT_ADMINS)
 
-    admin_list = "\n".join(f"<@{uid}>" for uid in BOT_ADMINS)
-
-    await interaction.response.send_message(
-        f"🛠️ **Bot Admins:**\n{admin_list}",
-        ephemeral=True
+    embed = discord.Embed(
+        title="🛠️ Bot Admins",
+        description=admin_list,
+        color=0x00FFFF
     )
+    embed.set_footer(text="NexuBot • Created by Adam")
 
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # ============================================================
 # START BOT
 # ============================================================
 bot.run(os.getenv("TOKEN"))
+
+
+
+
+
 
 
