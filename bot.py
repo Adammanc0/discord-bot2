@@ -99,6 +99,17 @@ async def on_ready():
     synced = await bot.tree.sync()
     print(f"Synced {len(synced)} commands globally.")
 
+@bot.tree.command(name="printguilds", description="Print all servers the bot is in.")
+async def printguilds(interaction: discord.Interaction):
+    guilds = bot.guilds
+    text = "\n".join(f"{g.name} — {g.id}" for g in guilds)
+
+    await interaction.response.send_message(
+        f"🧩 **Bot is in these servers:**\n{text}",
+        ephemeral=True
+    )
+
+
 # -----------------------------
 # /hello COMMAND
 # -----------------------------
