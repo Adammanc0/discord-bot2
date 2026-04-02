@@ -26,6 +26,8 @@ command_usage = {}
 has_been_reminded = {}
 
 FEEDBACK_CHANNEL_ID = 123456789012345678
+CHAOS_MODE = True
+
 
 # ============================================================
 # INTENTS
@@ -373,6 +375,109 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
+
+# ============================================================
+# CHAOS MODE
+# ============================================================
+
+CHAOS_LINES = [
+    "Fuck you ",
+    "Why are you here, where your not wanted",
+    "Wanker move on",
+    "Why are you in my areas",
+    "HOW DID U LIKE THAT?",
+    "your fucking brain is fried",
+    "why are u smelling colours",
+    "Can I hurt you?"
+]
+
+CHAOS_GIFS = [
+    "https://cdn.discordapp.com/attachments/467669751817043978/1366058429470474240/received_4007729869456254.gif",
+    "https://cdn.discordapp.com/attachments/1164766632971870298/1480814359675535471/attachment-43.gif",
+    "https://media.discordapp.net/attachments/870868123975315499/877053251814588416/yummy.gif",
+    "https://tenor.com/view/dick-smash-ownage-gif-5619114"
+]
+
+CHAOS_EMOJIS = ["😂", "💀", "🤨", "🔥", "😈", "🤡", "👀", "😵‍💫"]
+
+
+# -------------------------------
+# /chaos command
+# -------------------------------
+@bot.tree.command(name="chaos", description="Unleash full chaos on command.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def chaos(interaction: discord.Interaction):
+
+    logging.info(f"/chaos used by {interaction.user}")
+    await send_log_dm(f"/chaos used by {interaction.user}")
+
+    if await require_membership(interaction):
+        return
+
+    if await check_blacklist(interaction):
+        return
+
+    await interaction.response.send_message(
+        "🔥 **CHAOS ACTIVATED** 🔥",
+        ephemeral=True
+    )
+
+    # 1. Emoji spam
+    for _ in range(3):
+        await interaction.channel.send(random.choice(CHAOS_EMOJIS))
+        await asyncio.sleep(0.2)
+
+    # 2. GIF
+    await interaction.followup.send(random.choice(CHAOS_GIFS))
+
+    # 3. Chaos line
+    await interaction.followup.send(random.choice(CHAOS_LINES))
+
+
+
+# -------------------------------
+# /superchaos command
+# -------------------------------
+@bot.tree.command(name="superchaos", description="Unleash EXTREME chaos.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def superchaos(interaction: discord.Interaction):
+
+    logging.info(f"/superchaos used by {interaction.user}")
+    await send_log_dm(f"/superchaos used by {interaction.user}")
+
+    if await require_membership(interaction):
+        return
+
+    if await check_blacklist(interaction):
+        return
+
+    await interaction.response.send_message(
+        "⚡ **SUPER CHAOS INITIATED** ⚡\nBrace yourself...",
+        ephemeral=True
+    )
+
+    # 1. Emoji spam
+    for _ in range(10):
+        await interaction.channel.send(random.choice(CHAOS_EMOJIS))
+        await asyncio.sleep(0.15)
+
+    # 2. GIF spam
+    for _ in range(5):
+        await interaction.followup.send(random.choice(CHAOS_GIFS))
+        await asyncio.sleep(0.25)
+
+    # 3. Chaos line spam
+    for _ in range(5):
+        await interaction.followup.send(random.choice(CHAOS_LINES))
+        await asyncio.sleep(0.2)
+
+    # 4. Final message
+    await interaction.followup.send("💥 **SUPER CHAOS COMPLETE** 💥")
+
+
 
 
 
