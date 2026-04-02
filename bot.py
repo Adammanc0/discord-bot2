@@ -473,3 +473,105 @@ async def help_command(interaction: discord.Interaction):
     embed.set_footer(text="NexuBot • Created by Adam")
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# ============================================================
+# ADMIN COMMANDS
+# ============================================================
+@bot.tree.command(name="blacklist", description="Blacklist a user from using the bot.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to blacklist")
+async def blacklist(interaction: discord.Interaction, user: discord.User):
+
+    if interaction.user.id not in BOT_ADMINS:
+        await interaction.response.send_message(
+            "❌ Only bot admins can use this command.",
+            ephemeral=True
+        )
+        return
+
+    blacklisted_users.add(user.id)
+
+    await interaction.response.send_message(
+        f"✅ {user.mention} has been blacklisted.",
+        ephemeral=True
+    )
+
+
+@bot.tree.command(name="unblacklist", description="Remove a user from the blacklist.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to unblacklist")
+async def unblacklist(interaction: discord.Interaction, user: discord.User):
+
+    if interaction.user.id not in BOT_ADMINS:
+        await interaction.response.send_message(
+            "❌ Only bot admins can use this command.",
+            ephemeral=True
+        )
+        return
+
+    if user.id in blacklisted_users:
+        blacklisted_users.remove(user.id)
+        await interaction.response.send_message(
+            f"✅ {user.mention} has been removed from the blacklist.",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            "❌ That user is not blacklisted.",
+            ephemeral=True
+        )
+
+
+@bot.tree.command(name="blacklistlist", description="View all blacklisted users.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def blacklistlist(interaction: discord.Interaction):
+
+    if interaction.user.id not in BOT_ADMINS:
+        await interaction.response.send_message(
+            "❌ Only bot admins can use this command.",
+            ephemeral=True
+        )
+        return
+
+    if not blacklisted_users:
+        await interaction.response.send_message(
+            "📭 The blacklist is empty.",
+            ephemeral=True
+        )
+        return
+
+    user_list = "\n".join(f"<@{uid}>" for uid in blacklisted_users)
+
+    await interaction.response.send_message(
+        f"📝 **Blacklisted Users:**\n{user_list}",
+        ephemeral=True
+    )
+
+
+@bot.tree.command(name="adminadd", description="Add a user as a bot admin.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to grant admin access")
+async def adminadd(interaction: discord.Interaction, user: discord.User):
+
+    if interaction.user.id != 1106946860347834458:
+        await interaction.response.send_message(
+            "❌ Only the bot owner can add admins.",
+            ephemeral=True
+        )
+        return
+
+    BOT_ADMINS.add(user.id)
+
+    await interaction.response.send_message(
+        f"✅ {user.mention} has been added as a bot admin.",
+        ephemeral=True
+    )
+
+
+@bot.tree.command(name="adminremove", description="Remove aAdam, your file **cuts off mid‑function** right at the end:
+
+
