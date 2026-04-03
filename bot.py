@@ -625,7 +625,7 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 # ============================================================
 # Rick roll
 # ============================================================
-@bot.tree.command(name="rickroll", description="Flood the chat with the ultimate rick roll.")
+@bot.tree.command(name="rickroll", description="Send a mysterious musical message to someone.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to rickroll")
@@ -640,7 +640,22 @@ async def rickroll(interaction: discord.Interaction, user: discord.User):
     if await check_blacklist(interaction):
         return
 
+    # 🔒 Block anyone from using it on YOU (or any protected user)
+    if user.id in PROTECTED_USERS:
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot rickroll this user.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # ✔ Send the Rickroll line (no embed)
     await interaction.response.send_message(
+        f"""{user.mention} **We're no strangers to love...** 😉"""
+    )
+
         f"""{user.mention} **We're no strangers to love
 You know the rules and so do I
 A full commitment's what I'm thinking of
