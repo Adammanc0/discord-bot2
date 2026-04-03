@@ -622,6 +622,71 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
 
 
 
+# ============================================================
+# Rick roll
+# ============================================================
+@bot.tree.command(name="rickroll", description="Send a mysterious musical message to someone.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to rickroll")
+async def rickroll(interaction: discord.Interaction, user: discord.User):
+
+    logging.info(f"/rickroll used by {interaction.user} on {user}")
+    await send_log_dm(f"/rickroll used by {interaction.user} on {user}")
+
+    if await require_membership(interaction):
+        return
+
+    if await check_blacklist(interaction):
+        return
+
+    await interaction.response.send_message(
+        f"{user.mention} **We're no strangers to love
+You know the rules and so do I
+A full commitment's what I'm thinking of
+You wouldn't get this from any other guy
+I just wanna tell you how I'm feeling
+Gotta make you understand
+Never gonna give you up
+Never gonna let you down
+Never gonna run around and desert you
+Never gonna make you cry
+Never gonna say goodbye
+Never gonna tell a lie and hurt you
+We've known each other for so long
+Your heart's been aching but you're too shy to say it
+Inside we both know what's been going on
+We know the game and we're gonna play it
+And if you ask me how I'm feeling
+Don't tell me you're too blind to see
+Never gonna give you up
+Never gonna let you down
+Never gonna run around and desert you
+Never gonna make you cry
+Never gonna say goodbye
+Never gonna tell a lie and hurt you
+No, I'm never gonna give you up
+No, I'm never gonna let you down
+No, I'll never run around and hurt you
+Never, ever desert you
+We've known each other for so long
+Your heart's been aching but
+Never gonna give you up
+Never gonna let you down
+Never gonna run around and desert you
+Never gonna make you cry
+Never gonna say goodbye
+Never gonna tell a lie and hurt you
+No, I'm never gonna give you up
+No, I'm never gonna let you down
+No, I'll never run around and hurt you
+I'll never, ever desert you** "
+    )
+
+
+
+
+
 
 # ============================================================
 # DM TROLL
