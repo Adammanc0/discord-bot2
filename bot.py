@@ -653,11 +653,8 @@ async def rickroll(interaction: discord.Interaction, user: discord.User):
 
     # ✔ Send the Rickroll line (no embed)
     await interaction.response.send_message(
-        f"""{user.mention} **We're no strangers to love...** 😉"""
-    )
-
-        f"""{user.mention} **We're no strangers to love
-You know the rules and so do I
+        f"""{user.mention}
+**You know the rules and so do I
 A full commitment's what I'm thinking of
 You wouldn't get this from any other guy
 I just wanna tell you how I'm feeling
