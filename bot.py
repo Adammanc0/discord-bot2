@@ -508,6 +508,19 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
 # ============================================================
 # ROAST COMMANDS
 # ============================================================
+
+ROASTS = [
+    "Stupidity isn’t a crime, so you’re free to go.",
+    "I’d say you’re dumb as a rock, but at least a rock can hold a door open.",
+    "Have you ever tried not being an idiot?",
+    "Most mistakes can be corrected. You are the exception to the rule.",
+    "You’re the reason this country has to put directions on shampoo bottles.",
+    "Don’t be ashamed of who you are. That’s a job for your parents.",
+    " I consider you my sun. Now please get 93 million miles away from here.",
+    "If I wanted to hurt myself, I would simply jump from your ego to your IQ.",
+]
+
+
 @bot.tree.command(name="roast", description="Send a playful roast to a user.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -543,11 +556,11 @@ async def roast(interaction: discord.Interaction, user: discord.User):
     embed.set_footer(text="NexuBot • Created by Adam")
 
     await interaction.response.send_message(embed=embed)
-
     await handle_feedback_reminder(interaction)
 
 
-@bot.tree.command(name="roastspam", description="Spam roasts at a user 1-5.")
+
+@bot.tree.command(name="roastspam", description="Spam playful roasts at a user (1–5).")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to roast", amount="How many times to roast them")
@@ -572,6 +585,16 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    if user.id in PROTECTED_USERS:
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot roast this user.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
     embed = discord.Embed(
         title="🔥 Roast Spam Activated",
         description=f"Roasting {user.mention} **{amount} times**...",
@@ -580,7 +603,6 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
     embed.set_footer(text="NexuBot • Created by Adam")
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
-
     await handle_feedback_reminder(interaction)
 
     for _ in range(amount):
@@ -588,15 +610,16 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
             roast_line = random.choice(ROASTS)
             await interaction.followup.send(f"{user.mention}\n**{roast_line}**")
             await asyncio.sleep(0.3)
-        except:
+        except Exception as e:
             error_embed = discord.Embed(
                 title="❌ Error",
-                description="There was an issue sending roasts.",
+                description=f"There was an issue sending roasts.\n`{e}`",
                 color=0xDC143C
             )
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 
