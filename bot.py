@@ -811,7 +811,6 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
             f"📡 **Trace Complete for {user.mention}**\n"
             f"**Fake IP:** `{fake_ip}`\n"
             f"**Fake Coordinates:** `{fake_lat}, {fake_lon}`\n\n"
-            "*This is 100% fake and just for fun.* 😄"
         )
     except Exception as e:
         error_embed = discord.Embed(
