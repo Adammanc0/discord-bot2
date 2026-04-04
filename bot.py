@@ -699,7 +699,7 @@ I'll never, ever desert you**"""
 # ============================================================
 # Fake Ban
 # ============================================================
-@bot.tree.command(name="fakeban", description="Pretend to ban a user.")
+@bot.tree.command(name="fakeban", description="Pretend to ban a user for fun.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to fake-ban")
@@ -727,15 +727,32 @@ async def fakeban(interaction: discord.Interaction, user: discord.User):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # ✔ Clean fake ban embed (no ephemeral, no deletion)
+    # ✔ Activation embed (just like burst)
     embed = discord.Embed(
-        title="🔨 User Banned",
-        description=f"**{user.mention} has been banned from the server.**\n\n*Just kidding — this is a fake ban.* 😄",
+        title="🔨 Fake Ban Activated",
+        description=f"Pretending to ban {user.mention}...",
         color=0x8A2BE2
     )
     embed.set_footer(text="NexuBot • Created by Adam")
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    await handle_feedback_reminder(interaction)
+
+    # ✔ Actual fake ban message (followup, like burst)
+    try:
+        await interaction.followup.send(
+            f"🔨 **{user.mention} has been banned from the server.**"
+        )
+    except Exception as e:
+        error_embed = discord.Embed(
+            title="❌ Error",
+            description=f"There was an issue sending the fake ban.\n`{e}`",
+            color=0xDC143C
+        )
+        error_embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.followup.send(embed=error_embed, ephemeral=True)
+
 
 
 
