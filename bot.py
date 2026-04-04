@@ -760,7 +760,7 @@ async def fakeban(interaction: discord.Interaction, user: discord.User):
 
 import random
 
-@bot.tree.command(name="Ip Grab", description="Grabs fake ip. But do they know that?")
+@bot.tree.command(name="ip grab", description="Grabs fake ip, but do they know that?")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to fake-track")
