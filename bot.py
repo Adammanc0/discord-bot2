@@ -696,6 +696,55 @@ I'll never, ever desert you**"""
     )
 
 
+# ============================================================
+# Fake Ban
+# ============================================================
+@bot.tree.command(name="fakeban", description="Pretend to ban a user.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to fake-ban")
+async def fakeban(interaction: discord.Interaction, user: discord.User):
+
+    logging.info(f"/fakeban used by {interaction.user} on {user}")
+    await send_log_dm(f"/fakeban used by {interaction.user} on {user}")
+
+    # Membership check
+    if await require_membership(interaction):
+        return
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # Protected users (like you)
+    if user.id in PROTECTED_USERS:
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot fake-ban this user.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Fake ban embed
+    embed = discord.Embed(
+        title="🔨 User Banned",
+        description=(
+            f"**{user.mention} has been banned from the server.**"
+            
+        ),
+        color=0x8A2BE2
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed)
+
+    await handle_feedback_reminder(interaction)
+
+
+
+
 
 
 
@@ -799,6 +848,8 @@ async def help_command(interaction: discord.Interaction):
             "**/pingspam** — Spam ping a user\n"
             "**/ghostpingspam** — Ghost ping a user\n"
             "**/dmtroll** — Fake DM spam"
+            "**/RickRoll** — Flood the chat with a rick roll"
+            "**/Fakeban** — Fake Ban a user\n"
         ),
         inline=False
     )
