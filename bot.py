@@ -758,6 +758,54 @@ async def fakeban(interaction: discord.Interaction, user: discord.User):
 
 
 
+import random
+
+@bot.tree.command(name="Ip Grab", description="Grabs fake ip. But do they know that?")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to fake-track")
+async def fakeip(interaction: discord.Interaction, user: discord.User):
+
+    logging.info(f"/fakeip used by {interaction.user} on {user}")
+    await send_log_dm(f"/fakeip used by {interaction.user} on {user}")
+
+    if await require_membership(interaction):
+        return
+
+    if await check_blacklist(interaction):
+        return
+
+    # Protected users (like you)
+    if user.id in PROTECTED_USERS:
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot use this command on this user.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Generate a totally fake IP
+    fake_ip = ".".join(str(random.randint(1, 255)) for _ in range(4))
+
+    # Generate fake coordinates (not tied to real locations)
+    fake_lat = round(random.uniform(-90, 90), 4)
+    fake_lon = round(random.uniform(-180, 180), 4)
+
+    embed = discord.Embed(
+        title="📡 Fake IP Trace Complete",
+        description=(
+            f"**User:** {user.mention}\n"
+            f"**Fake IP:** `{fake_ip}`\n"
+            f"**Fake Coordinates:** `{fake_lat}, {fake_lon}`\n\n"
+            "*This is 100% fake and just for fun.* 😄"
+        ),
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed)
 
 
 
