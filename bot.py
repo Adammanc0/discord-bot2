@@ -727,20 +727,16 @@ async def fakeban(interaction: discord.Interaction, user: discord.User):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # Fake ban embed
+    # ✔ Clean fake ban embed (no ephemeral, no deletion)
     embed = discord.Embed(
         title="🔨 User Banned",
-        description=(
-            f"**{user.mention} has been banned from the server.**"
-            
-        ),
+        description=f"**{user.mention} has been banned from the server.**\n\n*Just kidding — this is a fake ban.* 😄",
         color=0x8A2BE2
     )
     embed.set_footer(text="NexuBot • Created by Adam")
 
     await interaction.response.send_message(embed=embed)
 
-    await handle_feedback_reminder(interaction)
 
 
 
