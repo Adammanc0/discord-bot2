@@ -640,7 +640,7 @@ async def rickroll(interaction: discord.Interaction, user: discord.User):
     if await check_blacklist(interaction):
         return
 
-    # 🔒 Block anyone from using it on YOU (or any protected user)
+    # Protected users
     if user.id in PROTECTED_USERS:
         embed = discord.Embed(
             title="⛔ Protected User",
@@ -651,10 +651,22 @@ async def rickroll(interaction: discord.Interaction, user: discord.User):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # ✔ Send the Rickroll line (no embed)
-    await interaction.response.send_message(
-        f"""{user.mention}
-**You know the rules and so do I
+    # Activation embed (ephemeral)
+    embed = discord.Embed(
+        title="🎵 Rickroll Activated",
+        description=f"Preparing to rickroll {user.mention}...",
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    await handle_feedback_reminder(interaction)
+
+    # Follow-up rickroll message
+    await interaction.followup.send(
+        f"{user.mention} 🎶 **You've been rickrolled!**\n"
+        "*We're no strangers to love
+You know the rules and so do I
 A full commitment's what I'm thinking of
 You wouldn't get this from any other guy
 I just wanna tell you how I'm feeling
@@ -677,7 +689,7 @@ Never gonna run around and desert you
 Never gonna make you cry
 Never gonna say goodbye
 Never gonna tell a lie and hurt you
-No, I'm never gonna give you up
+No, I'm never gonna give you up {user.mention}
 No, I'm never gonna let you down
 No, I'll never run around and hurt you
 Never, ever desert you
@@ -689,11 +701,12 @@ Never gonna run around and desert you
 Never gonna make you cry
 Never gonna say goodbye
 Never gonna tell a lie and hurt you
-No, I'm never gonna give you up {user.mention}
+No, I'm never gonna give you up
 No, I'm never gonna let you down
 No, I'll never run around and hurt you
-I'll never, ever desert you**"""
+I'll never, ever desert you* 😄"
     )
+
 
 
 # ============================================================
@@ -820,6 +833,56 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
         )
         error_embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.followup.send(embed=error_embed, ephemeral=True)
+
+import random
+
+@bot.tree.command(name="gayrate", description="Rates how gay someone is (for fun).")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to rate")
+async def gayrate(interaction: discord.Interaction, user: discord.User):
+
+    logging.info(f"/gayrate used by {interaction.user} on {user}")
+    await send_log_dm(f"/gayrate used by {interaction.user} on {user}")
+
+    # Membership check
+    if await require_membership(interaction):
+        return
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # Protected users (like you)
+    if user.id in PROTECTED_USERS:
+        embed = discord.Embed(
+            title="⛔ Protected User",
+            description="You cannot rate this user.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Activation embed (ephemeral)
+    embed = discord.Embed(
+        title="🌈 Gay Rate Activated",
+        description=f"Calculating {user.mention}'s gayness...",
+        color=0xFF69B4
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    await handle_feedback_reminder(interaction)
+
+    # Generate random percentage
+    percent = random.randint(0, 100)
+
+    # Follow-up result
+    await interaction.followup.send(
+        f"🌈 **{user.mention} is {percent}% gay!**\n"
+    )
+
 
 
 
