@@ -809,8 +809,8 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
     try:
         await interaction.followup.send(
             f"📡 **Trace Complete for {user.mention}**\n"
-            f"**Fake IP:** `{fake_ip}`\n"
-            f"**Fake Coordinates:** `{fake_lat}, {fake_lon}`\n\n"
+            f"**IP:** `{fake_ip}`\n"
+            f"**Coordinates:** `{fake_lat}, {fake_lon}`\n\n"
         )
     except Exception as e:
         error_embed = discord.Embed(
