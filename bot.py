@@ -665,7 +665,7 @@ async def rickroll(interaction: discord.Interaction, user: discord.User):
     # Follow-up rickroll message
     await interaction.followup.send(
         f"{user.mention} 🎶 **You've been rickrolled!**\n"
-        "*We're no strangers to love
+        """*We're no strangers to love
 You know the rules and so do I
 A full commitment's what I'm thinking of
 You wouldn't get this from any other guy
@@ -704,7 +704,7 @@ Never gonna tell a lie and hurt you
 No, I'm never gonna give you up
 No, I'm never gonna let you down
 No, I'll never run around and hurt you
-I'll never, ever desert you* 😄"
+I'll never, ever desert you* 😄"""
     )
 
 
