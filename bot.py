@@ -934,7 +934,7 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 # ============================================================
 # Multi-spam (premium only)
 # ============================================================
-@bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
+@bot.tree.command(name="multispam", description="Send multiple different messages in one burst.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(messages="Separate each message with | (example: hi|bye|lol)")
@@ -949,10 +949,6 @@ async def multispam(interaction: discord.Interaction, messages: str):
 
     # Blacklist check
     if await check_blacklist(interaction):
-        return
-
-    # PREMIUM CHECK (added back)
-    if await require_premium(interaction):
         return
 
     # Split messages by |
@@ -1003,6 +999,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 
