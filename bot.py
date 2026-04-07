@@ -945,9 +945,6 @@ async def multispam(interaction: discord.Interaction, messages: str):
     logging.info(f"/multispam used by {interaction.user} | messages={messages}")
     await send_log_dm(f"/multispam used by {interaction.user} | messages={messages}")
 
-    # Membership check
-    if await require_membership(interaction):
-        return
 
     # Blacklist check
     if await check_blacklist(interaction):
