@@ -114,8 +114,21 @@ async def require_membership(interaction: discord.Interaction):
 
 async def require_premium(interaction: discord.Interaction):
     guild = interaction.guild
-    member = guild.get_member(interaction.user.id)
 
+    # If command is used in DMs → allow
+    if guild is None:
+        return False
+
+    # If bot cannot see the member → allow instead of breaking
+    member = guild.get_member(interaction.user.id)
+    if member is None:
+        return False
+
+    # If bot cannot see roles → allow instead of breaking
+    if not hasattr(member, "roles"):
+        return False
+
+    # Actual premium check
     if PREMIUM_ROLE_ID not in [role.id for role in member.roles]:
         embed = discord.Embed(
             title="💎 Premium Required",
@@ -124,7 +137,6 @@ async def require_premium(interaction: discord.Interaction):
         )
         embed.set_footer(text="NexuBot • Premium System")
 
-        # Prevent double-response freeze
         if interaction.response.is_done():
             await interaction.followup.send(embed=embed, ephemeral=True)
         else:
@@ -133,6 +145,7 @@ async def require_premium(interaction: discord.Interaction):
         return True
 
     return False
+
 
 
 
@@ -934,40 +947,75 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 # ============================================================
 # Multi-spam (premium only)
 # ============================================================
-async def require_premium(interaction: discord.Interaction):
-    guild = interaction.guild
+@bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(messages="Separate each message with | (example: hi|bye|lol)")
+async def multispam(interaction: discord.Interaction, messages: str):
 
-    # If command is used in DMs or bot can't see roles → allow
-    if guild is None:
-        return False
+    logging.info(f"/multispam used by {interaction.user} | messages={messages}")
+    await send_log_dm(f"/multispam used by {interaction.user} | messages={messages}")
 
-    member = guild.get_member(interaction.user.id)
+    # Membership check
+    if await require_membership(interaction):
+        return
 
-    # If bot cannot see the member → allow instead of breaking
-    if member is None:
-        return False
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
 
-    # If bot cannot see roles → allow instead of breaking
-    if not hasattr(member, "roles"):
-        return False
+    # PREMIUM CHECK — ONLY THIS COMMAND USES IT
+    if await require_premium(interaction):
+        return
 
-    # Actual premium check
-    if PREMIUM_ROLE_ID not in [role.id for role in member.roles]:
+    # Split messages by |
+    parts = [m.strip() for m in messages.split("|") if m.strip()]
+
+    if len(parts) == 0:
         embed = discord.Embed(
-            title="💎 Premium Required",
-            description="This command is for **NexuBot Premium** users only.\n\nDM the owner to upgrade.",
-            color=0xFFD700
+            title="⚠️ Invalid Input",
+            description="You must provide at least **1 message** separated by `|`.",
+            color=0xDC143C
         )
-        embed.set_footer(text="NexuBot • Premium System")
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
 
-        if interaction.response.is_done():
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        else:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+    if len(parts) > 5:
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum of **5 messages** allowed.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
 
-        return True
+    # Activation embed
+    embed = discord.Embed(
+        title="💥 Multi‑Spam Activated",
+        description=f"Sending **{len(parts)}** different messages!",
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    return False
+    await handle_feedback_reminder(interaction)
+
+    # Send each message
+    for msg in parts:
+        try:
+            await interaction.followup.send(msg)
+            await asyncio.sleep(0.3)
+        except:
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your multi-spam messages.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            return
 
 
 
