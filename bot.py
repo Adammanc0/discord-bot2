@@ -55,6 +55,7 @@ async def check_blacklist(interaction: discord.Interaction):
         return True
     return False
 
+
 async def handle_feedback_reminder(interaction):
     user_id = interaction.user.id
 
@@ -95,6 +96,31 @@ async def require_membership(interaction: discord.Interaction):
         return True
 
     return False
+
+
+async def require_premium(interaction: discord.Interaction):
+    guild = interaction.guild
+    member = guild.get_member(interaction.user.id)
+
+    if PREMIUM_ROLE_ID not in [role.id for role in member.roles]:
+        embed = discord.Embed(
+            title="💎 Premium Required",
+            description="This command is for **NexuBot Premium** users only.\n\nDM the owner to upgrade.",
+            color=0xFFD700
+        )
+        embed.set_footer(text="NexuBot • Premium System")
+
+        # Prevent double-response freeze
+        if interaction.response.is_done():
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        return True
+
+    return False
+
+
 
 
 # ============================================================
