@@ -935,7 +935,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
     if await check_blacklist(interaction):
         return
 
-    # ⭐ PREMIUM CHECK
+    # PREMIUM CHECK
     if await require_premium(interaction):
         return
 
@@ -949,7 +949,11 @@ async def multispam(interaction: discord.Interaction, messages: str):
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        if interaction.response.is_done():
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if len(parts) > 5:
@@ -959,7 +963,11 @@ async def multispam(interaction: discord.Interaction, messages: str):
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        if interaction.response.is_done():
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     # Activation embed
@@ -969,7 +977,12 @@ async def multispam(interaction: discord.Interaction, messages: str):
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    # FIX: avoid double-response crash
+    if interaction.response.is_done():
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    else:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
