@@ -924,7 +924,7 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
     percent = random.randint(0, 100)
 
     # Follow-up result
-    await interaction.followup.send(
+    await interaction.followup.send()
 
 
 # ============================================================
