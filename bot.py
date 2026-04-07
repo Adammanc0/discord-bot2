@@ -925,7 +925,9 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 
     # Follow-up result
     await interaction.followup.send(
-    # ============================================================
+
+
+# ============================================================
 # Multi-spam (premium only)
 # ============================================================
 @bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
