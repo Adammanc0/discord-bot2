@@ -26,7 +26,8 @@ command_usage = {}
 has_been_reminded = {}
 
 FEEDBACK_CHANNEL_ID = 123456789012345678
-CHAOS_MODE = True
+PREMIUM_ROLE_ID = 1491115606353907873
+
 
 
 # ============================================================
@@ -769,7 +770,7 @@ async def fakeban(interaction: discord.Interaction, user: discord.User):
 
 
 
-
+IP GRAB
 
 import random
 
@@ -834,6 +835,8 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
         error_embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.followup.send(embed=error_embed, ephemeral=True)
 
+GAY RATE
+
 import random
 
 @bot.tree.command(name="gayrate", description="Rates how gay someone is (for fun).")
@@ -882,6 +885,78 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
     await interaction.followup.send(
         f"🌈 **{user.mention} is {percent}% gay!**\n"
     )
+
+
+
+@bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(messages="Separate each message with | (example: hi|bye|lol)")
+async def multispam(interaction: discord.Interaction, messages: str):
+
+    logging.info(f"/multispam used by {interaction.user} | messages={messages}")
+    await send_log_dm(f"/multispam used by {interaction.user} | messages={messages}")
+
+    # Membership check
+    if await require_membership(interaction):
+        return
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # ⭐ PREMIUM CHECK
+    if await require_premium(interaction):
+        return
+
+    # Split messages by |
+    parts = [m.strip() for m in messages.split("|") if m.strip()]
+
+    if len(parts) == 0:
+        embed = discord.Embed(
+            title="⚠️ Invalid Input",
+            description="You must provide at least **1 message** separated by `|`.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    if len(parts) > 5:
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum of **5 messages** allowed.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Activation embed
+    embed = discord.Embed(
+        title="💥 Multi‑Spam Activated",
+        description=f"Sending **{len(parts)}** different messages!",
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    await handle_feedback_reminder(interaction)
+
+    # Send each message
+    for msg in parts:
+        try:
+            await interaction.followup.send(msg)
+            await asyncio.sleep(0.3)
+        except:
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your multi-spam messages.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            return
 
 
 
