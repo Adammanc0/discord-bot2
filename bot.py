@@ -934,23 +934,24 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 # ============================================================
 # Multi-spam (premium only)
 # ============================================================
-
 @bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(messages="Separate each message with | (example: hi|bye|lol)")
 async def multispam(interaction: discord.Interaction, messages: str):
 
-
     logging.info(f"/multispam used by {interaction.user} | messages={messages}")
     await send_log_dm(f"/multispam used by {interaction.user} | messages={messages}")
 
+    # Membership check
+    if await require_membership(interaction):
+        return
 
     # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # PREMIUM CHECK
+    # PREMIUM CHECK (added back)
     if await require_premium(interaction):
         return
 
@@ -964,11 +965,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
-
-        if interaction.response.is_done():
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        else:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if len(parts) > 5:
@@ -978,30 +975,21 @@ async def multispam(interaction: discord.Interaction, messages: str):
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
-
-        if interaction.response.is_done():
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        else:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # Activation embed
+    # Activation embed (same style as burst)
     embed = discord.Embed(
         title="💥 Multi‑Spam Activated",
         description=f"Sending **{len(parts)}** different messages!",
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
-
-    # Prevent double-response crash
-    if interaction.response.is_done():
-        await interaction.followup.send(embed=embed, ephemeral=True)
-    else:
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
-    # Send each message
+    # Send each message (same loop style as burst)
     for msg in parts:
         try:
             await interaction.followup.send(msg)
@@ -1015,6 +1003,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 
