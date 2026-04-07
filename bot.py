@@ -925,7 +925,7 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 
     # Follow-up result
     # Follow-up result
-await interaction.followup.send(
+    await interaction.followup.send(
     f"🌈 **{user.mention} is {percent}% gay!**"
 )
 
