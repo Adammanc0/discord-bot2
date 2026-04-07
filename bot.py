@@ -769,9 +769,9 @@ async def fakeban(interaction: discord.Interaction, user: discord.User):
 
 
 
-
-IP GRAB
-
+# ============================================================
+# IP Grab
+# ============================================================
 import random
 
 @bot.tree.command(name="ipgrab", description="Generate a fake IP.")
@@ -835,7 +835,9 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
         error_embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.followup.send(embed=error_embed, ephemeral=True)
 
-GAY RATE
+# ============================================================
+# Gay Rate
+# ============================================================
 
 import random
 
@@ -887,7 +889,9 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
     )
 
 
-
+# ============================================================
+# Multi-spam (premium only)
+# ============================================================
 @bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
