@@ -925,11 +925,7 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 
     # Follow-up result
     await interaction.followup.send(
-        f"🌈 **{user.mention} is {percent}% gay!**\n"
-    )
-
-
-# ============================================================
+    # ============================================================
 # Multi-spam (premium only)
 # ============================================================
 @bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
@@ -992,7 +988,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
     )
     embed.set_footer(text="NexuBot • Created by Adam")
 
-    # FIX: avoid double-response crash
+    # Prevent double-response crash
     if interaction.response.is_done():
         await interaction.followup.send(embed=embed, ephemeral=True)
     else:
@@ -1014,6 +1010,10 @@ async def multispam(interaction: discord.Interaction, messages: str):
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+    f"🌈 **{user.mention} is {percent}% gay!**\n"
+    )
+
+
 
 
 
