@@ -79,23 +79,37 @@ async def handle_feedback_reminder(interaction):
 async def require_membership(interaction: discord.Interaction):
     guild = interaction.client.get_guild(REQUIRED_GUILD_ID)
 
+    embed = None
+
     if guild is None:
-        await interaction.response.send_message(
-            "❌ The bot is not connected to the main server.",
-            ephemeral=True
+        embed = discord.Embed(
+            title="❌ Bot Error",
+            description="The bot is not connected to the main server.",
+            color=0xDC143C
         )
-        return True
 
-    member = guild.get_member(interaction.user.id)
+    else:
+        member = guild.get_member(interaction.user.id)
+        if member is None:
+            embed = discord.Embed(
+                title="❌ Membership Required",
+                description=f"You must join my server to use this bot!\n{SERVER_INVITE}",
+                color=0xDC143C
+            )
 
-    if member is None:
-        await interaction.response.send_message(
-            f"❌ You must join my server to use this bot!\n{SERVER_INVITE}",
-            ephemeral=True
-        )
+    if embed:
+        embed.set_footer(text="NexuBot • Created by Adam")
+
+        # Prevent double-response crash
+        if interaction.response.is_done():
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
         return True
 
     return False
+
 
 
 async def require_premium(interaction: discord.Interaction):
