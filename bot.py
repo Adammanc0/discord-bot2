@@ -1017,8 +1017,8 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
         )
     
     embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+    return
 
     if len(parts) > 10:
         embed = discord.Embed(
