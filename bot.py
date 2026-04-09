@@ -245,7 +245,7 @@ async def burst(
         return
 
     # Optional blame text
-    blame_text = f" — courtesy of {blame.mention}" if blame else ""
+    blame_text = f" — RAIDED BY {blame.mention}" if blame else ""
 
     # ⭐ EPHEMERAL ACTIVATION MESSAGE (just like spamcoinflip)
     embed = discord.Embed(
