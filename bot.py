@@ -991,9 +991,105 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
     if await check_blacklist(interaction):
         return
 
-    # PREMIUM CHECK
-    if await require_premium(interaction):
+    async def check_blacklist(interaction: discord.Interaction):
+    if interaction.user.id in blacklisted_users:
+        embed = discord.Embed(
+            title="⛔ Access Denied",
+            description="You are **blacklisted** from using NexuBot.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return True
+    return False
+
+
+async def handle_feedback_reminder(interaction):
+    user_id = interaction.user.id
+
+    if has_been_reminded.get(user_id):
         return
+
+    command_usage[user_id] = command_usage.get(user_id, 0) + 1
+
+    if command_usage[user_id] >= 3:
+        channel = interaction.client.get_channel(FEEDBACK_CHANNEL_ID)
+        if channel:
+            await channel.send(
+                f"Hey {interaction.user.mention}, you've used the bot a few times! "
+                f"If you're enjoying it, feel free to leave feedback in <#1487091727020851311>."
+            )
+
+        has_been_reminded[user_id] = True
+        command_usage[user_id] = 0  
+
+
+async def require_membership(interaction: discord.Interaction):
+    guild = interaction.client.get_guild(REQUIRED_GUILD_ID)
+
+    embed = None
+
+    if guild is None:
+        embed = discord.Embed(
+            title="❌ Bot Error",
+            description="The bot is not connected to the main server.",
+            color=0xDC143C
+        )
+
+    else:
+        member = guild.get_member(interaction.user.id)
+        if member is None:
+            embed = discord.Embed(
+                title="❌ Membership Required",
+                description=f"You must join my server to use this bot!\n{SERVER_INVITE}",
+                color=0xDC143C
+            )
+
+    if embed:
+        embed.set_footer(text="NexuBot • Created by Adam")
+
+        # Prevent double-response crash
+        if interaction.response.is_done():
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        return True
+
+    return False
+
+
+
+async def require_premium(interaction: discord.Interaction):
+    guild = interaction.guild
+
+    # Allow in DMs
+    if guild is None:
+        return False
+
+    # If bot can't see the member, allow
+    member = guild.get_member(interaction.user.id)
+    if member is None:
+        return False
+
+    # If user is premium, allow
+    if interaction.user.id in PREMIUM_USERS:
+        return False
+
+    # Otherwise block
+    embed = discord.Embed(
+        title="💎 Premium Required",
+        description="This command is for **NexuBot Premium** users only.\n\nDM the owner to upgrade.",
+        color=0xFFD700
+    )
+    embed.set_footer(text="NexuBot • Premium System")
+
+    if interaction.response.is_done():
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    else:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    return True
 
     # Amount limit
     if amount > 10:
@@ -1055,6 +1151,7 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
                 error_embed.set_footer(text="NexuBot • Created by Adam")
                 await interaction.followup.send(embed=error_embed, ephemeral=True)
                 return
+
 
 
 
