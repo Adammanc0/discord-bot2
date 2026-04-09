@@ -204,6 +204,19 @@ async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+@bot.tree.command(name="premiumfeature")
+async def premiumfeature(interaction):
+    if await require_membership(interaction):
+        return
+    if await check_blacklist(interaction):
+        return
+    if await require_premium(interaction):
+        return
+
+    await interaction.response.send_message("You are premium!")
+
+
+
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
