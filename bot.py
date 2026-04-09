@@ -115,36 +115,33 @@ async def require_membership(interaction: discord.Interaction):
 async def require_premium(interaction: discord.Interaction):
     guild = interaction.guild
 
-    # If command is used in DMs → allow
+    # Allow in DMs
     if guild is None:
         return False
 
-    # If bot cannot see the member → allow instead of breaking
+    # If bot can't see the member, allow
     member = guild.get_member(interaction.user.id)
     if member is None:
         return False
 
-    # If bot cannot see roles → allow instead of breaking
-    if not hasattr(member, "roles"):
+    # If user is premium, allow
+    if interaction.user.id in PREMIUM_USERS:
         return False
 
-    # Actual premium check
-    if PREMIUM_ROLE_ID not in [role.id for role in member.roles]:
-        embed = discord.Embed(
-            title="💎 Premium Required",
-            description="This command is for **NexuBot Premium** users only.\n\nDM the owner to upgrade.",
-            color=0xFFD700
-        )
-        embed.set_footer(text="NexuBot • Premium System")
+    # Otherwise block
+    embed = discord.Embed(
+        title="💎 Premium Required",
+        description="This command is for **NexuBot Premium** users only.\n\nDM the owner to upgrade.",
+        color=0xFFD700
+    )
+    embed.set_footer(text="NexuBot • Premium System")
 
-        if interaction.response.is_done():
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        else:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+    if interaction.response.is_done():
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    else:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        return True
-
-    return False
+    return True
 
 
 
@@ -947,14 +944,20 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 # ============================================================
 # Multi-spam (premium only)
 # ============================================================
-@bot.tree.command(name="multispam", description="Send multiple different messages in one burst. (Premium Only)")
+@bot.tree.command(
+    name="multispam",
+    description="Send multiple different messages in one burst. (Premium Only)"
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(messages="Separate each message with | (example: hi|bye|lol)")
-async def multispam(interaction: discord.Interaction, messages: str):
+@app_commands.describe(
+    messages="Separate each message with | (example: hi|bye|lol)",
+    amount="How many times to send the full set (max 5)"
+)
+async def multispam(interaction: discord.Interaction, messages: str, amount: int):
 
-    logging.info(f"/multispam used by {interaction.user} | messages={messages}")
-    await send_log_dm(f"/multispam used by {interaction.user} | messages={messages}")
+    logging.info(f"/multispam used by {interaction.user} | messages={messages} | amount={amount}")
+    await send_log_dm(f"/multispam used by {interaction.user} | messages={messages} | amount={amount}")
 
     # Membership check
     if await require_membership(interaction):
@@ -964,11 +967,22 @@ async def multispam(interaction: discord.Interaction, messages: str):
     if await check_blacklist(interaction):
         return
 
-    # PREMIUM CHECK — ONLY THIS COMMAND USES IT
+    # PREMIUM CHECK
     if await require_premium(interaction):
         return
 
-    # Split messages by |
+    # Amount limit
+    if amount > 5:
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description="Maximum **amount** is **5**.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Split messages
     parts = [m.strip() for m in messages.split("|") if m.strip()]
 
     if len(parts) == 0:
@@ -984,7 +998,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
     if len(parts) > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum of **5 messages** allowed.",
+            description="Maximum of **5 different messages** allowed.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -994,7 +1008,7 @@ async def multispam(interaction: discord.Interaction, messages: str):
     # Activation embed
     embed = discord.Embed(
         title="💥 Multi‑Spam Activated",
-        description=f"Sending **{len(parts)}** different messages!",
+        description=f"Sending **{len(parts)} messages** × **{amount} times**!",
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
@@ -1002,20 +1016,22 @@ async def multispam(interaction: discord.Interaction, messages: str):
 
     await handle_feedback_reminder(interaction)
 
-    # Send each message
-    for msg in parts:
-        try:
-            await interaction.followup.send(msg)
-            await asyncio.sleep(0.3)
-        except:
-            error_embed = discord.Embed(
-                title="❌ Error",
-                description="There was an issue sending your multi-spam messages.",
-                color=0xDC143C
-            )
-            error_embed.set_footer(text="NexuBot • Created by Adam")
-            await interaction.followup.send(embed=error_embed, ephemeral=True)
-            return
+    # Send messages
+    for _ in range(amount):
+        for msg in parts:
+            try:
+                await interaction.followup.send(msg)
+                await asyncio.sleep(0.3)
+            except:
+                error_embed = discord.Embed(
+                    title="❌ Error",
+                    description="There was an issue sending your multi-spam messages.",
+                    color=0xDC143C
+                )
+                error_embed.set_footer(text="NexuBot • Created by Adam")
+                await interaction.followup.send(embed=error_embed, ephemeral=True)
+                return
+
 
 
 
