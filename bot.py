@@ -207,21 +207,33 @@ async def hello(interaction: discord.Interaction):
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
-@bot.tree.command(name="burst", description="Spam a message multiple times 1-5.")
+@bot.tree.command(name="burst", description="Send a message multiple times 1-5.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(message="The message to send", amount="How many times to send it")
-async def burst(interaction: discord.Interaction, message: str, amount: int):
+@app_commands.describe(
+    message="The message to send",
+    amount="How many times to send it",
+    blame="(Optional) Tag someone to blame"
+)
+async def burst(
+    interaction: discord.Interaction,
+    message: str,
+    amount: int,
+    blame: discord.User | None = None
+):
 
-    logging.info(f"/burst used by {interaction.user} | amount={amount}")
-    await send_log_dm(f"/burst used by {interaction.user} | amount={amount}")
+    logging.info(f"/burst used by {interaction.user} | amount={amount} | blame={blame}")
+    await send_log_dm(f"/burst used by {interaction.user} | amount={amount} | blame={blame}")
 
+    # Membership check
     if await require_membership(interaction):
         return
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
+    # Limit check
     if amount > 5:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
@@ -232,6 +244,10 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+ # Optional blame text
+blame_text = f" {blame.mention} has started a raid" if blame else ""
+
+    # Activation embed
     embed = discord.Embed(
         title="💥 Burst Activated",
         description=f"Sending your message **{amount} times**!",
@@ -242,9 +258,10 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
 
     await handle_feedback_reminder(interaction)
 
+    # Send messages
     for _ in range(amount):
         try:
-            await interaction.followup.send(message)
+            await interaction.followup.send(f"{message}{blame_text}")
             await asyncio.sleep(0.3)
         except:
             error_embed = discord.Embed(
@@ -255,6 +272,8 @@ async def burst(interaction: discord.Interaction, message: str, amount: int):
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
+
 
 
 
@@ -952,7 +971,7 @@ async def gayrate(interaction: discord.Interaction, user: discord.User):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(
     messages="Separate each message with | (example: hi|bye|lol)",
-    amount="How many times to send the full set (max 5)"
+    amount="How many times to send the full set (max 10)"
 )
 async def multispam(interaction: discord.Interaction, messages: str, amount: int):
 
