@@ -972,10 +972,10 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
         return
 
     # Amount limit
-    if amount > 5:
+    if amount > 10:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum **amount** is **5**.",
+            description="Maximum **amount** is **10**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -995,10 +995,10 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if len(parts) > 5:
+    if len(parts) > 10:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum of **5 different messages** allowed.",
+            description="Maximum of **10 different messages** allowed.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
