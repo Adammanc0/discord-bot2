@@ -245,32 +245,21 @@ async def burst(
         return
 
     # Optional blame text
-    blame_text = f" — chaos triggered by {blame.mention}" if blame else ""
+    blame_text = f" — courtesy of {blame.mention}" if blame else ""
 
-    # Optional fake alert embed (Lunex-style but safe)
-    if blame:
-        alert_embed = discord.Embed(
-            title="🚨 RAID ALERT",
-            description=(
-                f"YOUR SERVER IS BEING RAIDED.\n\n"
-                f"**Responsible User:** {blame.mention}"
-            ),
-            color=0xFF0000
-        )
-        alert_embed.set_footer(text="Powered by NexuBot • Fictional System Notice")
-        await interaction.response.send_message(embed=alert_embed)
-    else:
-        embed = discord.Embed(
-            title="💥 Burst Activated",
-            description=f"Sending your message **{amount} times**!",
-            color=0x39FF14
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    # ⭐ EPHEMERAL ACTIVATION MESSAGE (just like spamcoinflip)
+    embed = discord.Embed(
+        title="💥 Burst Activated",
+        description=f"Sending your message **{amount} times**!{blame_text}",
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
-    # Send messages
+    # ⭐ SEND THE BURST MESSAGES AFTER THE EPHEMERAL RESPONSE
     for _ in range(amount):
         try:
             await interaction.followup.send(f"{message}{blame_text}")
@@ -284,6 +273,7 @@ async def burst(
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 
