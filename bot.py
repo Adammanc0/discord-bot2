@@ -244,8 +244,8 @@ async def burst(
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-        # Optional blame text
-        blame_text = f" {blame.mention} has started a raid" if blame else ""
+    # Optional blame text
+    blame_text = f" {blame.mention} has started a raid" if blame else ""
 
     # Activation embed
     embed = discord.Embed(
@@ -272,6 +272,7 @@ async def burst(
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 
