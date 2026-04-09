@@ -244,8 +244,8 @@ async def burst(
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
- # Optional blame text
-blame_text = f" {blame.mention} has started a raid" if blame else ""
+        # Optional blame text
+        blame_text = f" {blame.mention} has started a raid" if blame else ""
 
     # Activation embed
     embed = discord.Embed(
