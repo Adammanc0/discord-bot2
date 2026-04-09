@@ -245,16 +245,26 @@ async def burst(
         return
 
     # Optional blame text
-    blame_text = f" {blame.mention} has started a raid" if blame else ""
+    blame_text = f" — chaos triggered by {blame.mention}" if blame else ""
 
-    # Activation embed
-    embed = discord.Embed(
-        title="💥 Burst Activated",
-        description=f"Sending your message **{amount} times**!",
-        color=0x39FF14
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    # Optional fake alert embed (Lunex-style but harmless)
+    if blame:
+        alert_embed = discord.Embed(
+            title="🚨 CHAOS ALERT",
+            description=f"A dramatic (but fake) alert has been issued.\n\n**Culprit:** {blame.mention}",
+            color=0xFF0000
+        )
+        alert_embed.set_footer(text="Powered by NexuBot • This alert is 100% fake")
+        await interaction.response.send_message(embed=alert_embed)
+    else:
+        # If no blame, send the activation embed as the first response
+        embed = discord.Embed(
+            title="💥 Burst Activated",
+            description=f"Sending your message **{amount} times**!",
+            color=0x39FF14
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
@@ -272,6 +282,7 @@ async def burst(
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 
