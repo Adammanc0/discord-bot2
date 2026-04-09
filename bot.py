@@ -16,7 +16,7 @@ logging.basicConfig(
 # CONFIG
 # ============================================================
 REQUIRED_GUILD_ID = 1487086105479352501
-SERVER_INVITE = "https://discord.gg/qHrpUByA"
+SERVER_INVITE = "https://discord.gg/cyUz8jgD89"
 
 blacklisted_users = set()
 PROTECTED_USERS = {1106946860347834458}  # You
