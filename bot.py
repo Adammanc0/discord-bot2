@@ -26,7 +26,7 @@ command_usage = {}
 has_been_reminded = {}
 
 FEEDBACK_CHANNEL_ID = 123456789012345678
-PREMIUM_ROLE_ID = 1491115606353907873
+PREMIUM_USERS = set()
 
 
 
@@ -1418,6 +1418,131 @@ async def adminlist(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+# ============================================================
+# PREMIUM COMMANDS
+# ============================================================
+@bot.tree.command(name="premiumadd", description="Grant NexuBot Premium access to a user.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to grant premium access")
+async def premiumadd(interaction: discord.Interaction, user: discord.User):
+
+    logging.warning(f"/premiumadd used by {interaction.user} to add {user}")
+    await send_log_dm(f"/premiumadd used by {interaction.user} to add {user}")
+
+    if await require_membership(interaction):
+        return
+
+    # Only owner can grant premium
+    if interaction.user.id != OWNER_ID:
+        embed = discord.Embed(
+            title="⛔ Owner Only",
+            description="Only the **bot owner** can grant premium access.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Add user to premium list
+    PREMIUM_USERS.add(user.id)
+
+    embed = discord.Embed(
+        title="💎 Premium Granted",
+        description=f"{user.mention} now has **NexuBot Premium** access!",
+        color=0xFFD700
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+@bot.tree.command(name="premiumremove", description="Remove NexuBot Premium access from a user.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user="The user to remove premium access from")
+async def premiumremove(interaction: discord.Interaction, user: discord.User):
+
+    logging.warning(f"/premiumremove used by {interaction.user} to remove {user}")
+    await send_log_dm(f"/premiumremove used by {interaction.user} to remove {user}")
+
+    if await require_membership(interaction):
+        return
+
+    # Only owner can remove premium
+    if interaction.user.id != OWNER_ID:
+        embed = discord.Embed(
+            title="⛔ Owner Only",
+            description="Only the **bot owner** can remove premium access.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    if user.id not in PREMIUM_USERS:
+        embed = discord.Embed(
+            title="ℹ️ Not Premium",
+            description="That user does not have **NexuBot Premium**.",
+            color=0x2F3136
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    PREMIUM_USERS.remove(user.id)
+
+    embed = discord.Embed(
+        title="💎 Premium Removed",
+        description=f"{user.mention} no longer has **NexuBot Premium** access.",
+        color=0xDC143C
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+@bot.tree.command(name="premiumlist", description="View all users with NexuBot Premium access.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def premiumlist(interaction: discord.Interaction):
+
+    logging.info(f"/premiumlist viewed by {interaction.user}")
+    await send_log_dm(f"/premiumlist viewed by {interaction.user}")
+
+    if await require_membership(interaction):
+        return
+
+    if interaction.user.id not in BOT_ADMINS and interaction.user.id != OWNER_ID:
+        embed = discord.Embed(
+            title="⛔ Permission Denied",
+            description="Only **bot admins** or the **owner** can view the premium list.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    if not PREMIUM_USERS:
+        embed = discord.Embed(
+            title="📭 No Premium Users",
+            description="There are currently **no NexuBot Premium** users.",
+            color=0x2F3136
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    user_list = "\n".join(f"• <@{uid}>" for uid in PREMIUM_USERS)
+
+    embed = discord.Embed(
+        title="💎 NexuBot Premium Users",
+        description=user_list,
+        color=0xFFD700
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+PREMIUM_USERS = set()
 
 
 
