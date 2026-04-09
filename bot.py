@@ -991,7 +991,7 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
     if await check_blacklist(interaction):
         return
 
-    # PREMIUM CHECK
+    # PREMIUM CHECK (THIS MUST BE HERE)
     if await require_premium(interaction):
         return
 
@@ -1015,7 +1015,8 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
             description="You must provide at least **1 message** separated by `|`.",
             color=0xDC143C
         )
-        embed.set_footer(text="NexuBot • Created by Adam")
+    
+    embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
@@ -1055,6 +1056,7 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
                 error_embed.set_footer(text="NexuBot • Created by Adam")
                 await interaction.followup.send(embed=error_embed, ephemeral=True)
                 return
+
 
 
 
