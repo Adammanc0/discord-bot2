@@ -212,7 +212,7 @@ async def premiumfeature(interaction):
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
-@bot.tree.command(name="burst", description="Send a message multiple times 1-5.")
+@bot.tree.command(name="burst", description="spam a message! 10 max for premium 5 for normal.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(
@@ -238,11 +238,13 @@ async def burst(
     if await check_blacklist(interaction):
         return
 
-    # Limit check
-    if amount > 5:
+    # ⭐ PREMIUM LIMIT LOGIC
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
+
+    if amount > max_amount:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum burst amount is **5**.",
+            description=f"Your maximum burst amount is **{max_amount}**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -252,7 +254,7 @@ async def burst(
     # Optional blame text
     blame_text = f" — RAIDED BY {blame.mention}" if blame else ""
 
-    # ⭐ EPHEMERAL ACTIVATION MESSAGE (just like spamcoinflip)
+    # Activation embed
     embed = discord.Embed(
         title="💥 Burst Activated",
         description=f"Sending your message **{amount} times**!{blame_text}",
@@ -264,7 +266,7 @@ async def burst(
 
     await handle_feedback_reminder(interaction)
 
-    # ⭐ SEND THE BURST MESSAGES AFTER THE EPHEMERAL RESPONSE
+    # Send the burst messages
     for _ in range(amount):
         try:
             await interaction.followup.send(f"{message}{blame_text}")
