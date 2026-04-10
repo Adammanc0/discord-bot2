@@ -110,30 +110,24 @@ async def require_membership(interaction: discord.Interaction):
 
     return False
 
+
 async def require_premium(interaction: discord.Interaction):
-
-    # Allow in DMs only
-    if interaction.guild is None:
-        return False
-
-    # If user is premium, allow
-    if interaction.user.id in PREMIUM_USERS:
-        return False
-
-    # Otherwise block
-    embed = discord.Embed(
-        title="💎 Premium Required",
-        description="This command is for **NexuBot Premium** users only.\n\nDM the owner to upgrade.",
-        color=0xFFD700
-    )
-    embed.set_footer(text="NexuBot • Premium System")
-
-    if interaction.response.is_done():
-        await interaction.followup.send(embed=embed, ephemeral=True)
-    else:
+    if interaction.user.id not in PREMIUM_USERS:
+        embed = discord.Embed(
+            title="🔒 PREMIUM REQUIRED",
+            description=(
+                "**Boost our server 2 times OR purchase Premium to unlock this feature!**\n\n"
+                "🛒 Buy Premium here ➜ [purchase channel](https://discord.com/channels/1487086105479352501/1488889216552407160)\n"
+                "💎 2 boosts = lifetime Premium access\n"
+                "🚀 Boost here ➜ [our server](https://discord.gg/cyUz8jgD89)"
+            ),
+            color=0xFFD700
+        )
+        embed.set_footer(text="NexuBot • Premium Access")
         await interaction.response.send_message(embed=embed, ephemeral=True)
+        return True
+    return False
 
-    return True
 
 
 
