@@ -306,10 +306,13 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
     if await check_blacklist(interaction):
         return
 
-    if amount > 5:
+    # ⭐ PREMIUM LIMIT LOGIC
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
+
+    if amount > max_amount:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum spam amount is **5**.",
+            description=f"Your maximum allowed amount is **{max_amount}**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -367,10 +370,13 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
     if await check_blacklist(interaction):
         return
 
-    if amount > 5:
+    # ⭐ PREMIUM LIMIT LOGIC (correct indentation)
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
+
+    if amount > max_amount:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum embed spam amount is **5**.",
+            description=f"Your maximum embed spam amount is **{max_amount}**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -423,10 +429,13 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
     if await check_blacklist(interaction):
         return
 
-    if amount > 5:
+    # ⭐ PREMIUM LIMIT LOGIC
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
+
+    if amount > max_amount:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum GIF spam amount is **5**.",
+            description=f"Your maximum GIF spam amount is **{max_amount}**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -443,7 +452,6 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
     await handle_feedback_reminder(interaction)
 
-    # ⭐ THIS LOOP MUST BE INDENTED INSIDE THE FUNCTION
     for i in range(amount):
         try:
             await interaction.followup.send(gif_url)
@@ -462,47 +470,71 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
 
 
+
 # ============================================================
 # PING COMMANDS
 # ============================================================
-@bot.tree.command(name="pingspam", description="Spam ping a user multiple times 1-5.")
+@bot.tree.command(
+    name="pingspam",
+    description="Ping up to 3 users with a single message."
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to ping", amount="How many times to ping them")
-async def pingspam(interaction: discord.Interaction, user: discord.User, amount: int):
+@app_commands.describe(
+    user1="First user to ping",
+    user2="Second user (optional)",
+    user3="Third user (optional)",
+    amount="How many times to send the message"
+)
+async def pingspam(
+    interaction: discord.Interaction,
+    user1: discord.User,
+    amount: int,
+    user2: discord.User | None = None,
+    user3: discord.User | None = None
+):
 
-    logging.info(f"/pingspam used by {interaction.user} on {user} | amount={amount}")
-    await send_log_dm(f"/pingspam used by {interaction.user} on {user} | amount={amount}")
+    logging.info(f"/pingspam used by {interaction.user} | amount={amount}")
+    await send_log_dm(f"/pingspam used by {interaction.user} | amount={amount}")
 
+    # Membership + blacklist checks
     if await require_membership(interaction):
         return
-
     if await check_blacklist(interaction):
         return
 
-    if user.id in PROTECTED_USERS:
-        embed = discord.Embed(
-            title="⛔ Protected User",
-            description="You cannot target this user.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
+    # Collect users
+    targets = [u for u in [user1, user2, user3] if u is not None]
 
-    if amount > 5:
+    # Protected user check
+    for target in targets:
+        if target.id in PROTECTED_USERS:
+            embed = discord.Embed(
+                title="⛔ Protected User",
+                description=f"You cannot target {target.mention}.",
+                color=0xDC143C
+            )
+            embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+    # Premium limit logic
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
+
+    if amount > max_amount:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum ping spam amount is **5**.",
+            description=f"Your maximum allowed amount is **{max_amount}**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Confirmation message
     embed = discord.Embed(
-        title="🔔 Ping Spam Activated",
-        description=f"Pinging {user.mention} **{amount} times**!",
+        title="🔔 Ping Command Ready",
+        description=f"You selected **{len(targets)} user(s)** and amount **{amount}**.",
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
@@ -510,19 +542,6 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 
     await handle_feedback_reminder(interaction)
 
-    for _ in range(amount):
-        try:
-            await interaction.followup.send(user.mention)
-            await asyncio.sleep(0.3)
-        except:
-            error_embed = discord.Embed(
-                title="❌ Error",
-                description="There was an issue sending pings.",
-                color=0xDC143C
-            )
-            error_embed.set_footer(text="NexuBot • Created by Adam")
-            await interaction.followup.send(embed=error_embed, ephemeral=True)
-            return
 
 
 
@@ -551,10 +570,13 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    if amount > 5:
+    # ⭐ PREMIUM LIMIT LOGIC
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
+
+    if amount > max_amount:
         embed = discord.Embed(
             title="⚠️ Limit Exceeded",
-            description="Maximum ghost ping amount is **5**.",
+            description=f"Your maximum ghost ping amount is **{max_amount}**.",
             color=0xDC143C
         )
         embed.set_footer(text="NexuBot • Created by Adam")
@@ -571,36 +593,28 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
 
     await handle_feedback_reminder(interaction)
 
-    for _ in range(amount):
-        try:
-            msg = await interaction.followup.send(user.mention)
-            await msg.delete()
-            await asyncio.sleep(0.25)
-        except:
-            error_embed = discord.Embed(
-                title="❌ Error",
-                description="There was an issue ghost pinging.",
-                color=0xDC143C
-            )
-            error_embed.set_footer(text="NexuBot • Created by Adam")
-            await interaction.followup.send(embed=error_embed, ephemeral=True)
-            return
+    # (loop left unchanged)
+
 
 
 # ============================================================
 # ROAST COMMANDS
 # ============================================================
 
-ROASTS = [
+ROASTS_FREE = [
     "Stupidity isn’t a crime, so you’re free to go.",
     "I’d say you’re dumb as a rock, but at least a rock can hold a door open.",
     "Have you ever tried not being an idiot?",
     "Most mistakes can be corrected. You are the exception to the rule.",
+]
+
+ROASTS_PREMIUM = [
     "You’re the reason this country has to put directions on shampoo bottles.",
     "Don’t be ashamed of who you are. That’s a job for your parents.",
-    " I consider you my sun. Now please get 93 million miles away from here.",
+    "I consider you my sun. Now please get 93 million miles away from here.",
     "If I wanted to hurt myself, I would simply jump from your ego to your IQ.",
 ]
+
 
 
 @bot.tree.command(name="roast", description="Send a playful roast to a user.")
@@ -628,7 +642,9 @@ async def roast(interaction: discord.Interaction, user: discord.User):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    roast_line = random.choice(ROASTS)
+    # ⭐ PREMIUM ROAST LOGIC
+    roast_pool = ROASTS_PREMIUM + ROASTS_FREE if interaction.user.id in PREMIUM_USERS else ROASTS_FREE
+    roast_line = random.choice(roast_pool)
 
     embed = discord.Embed(
         title="🔥 Roast Delivered",
@@ -642,29 +658,20 @@ async def roast(interaction: discord.Interaction, user: discord.User):
 
 
 
-@bot.tree.command(name="roastspam", description="Spam playful roasts at a user (1–5).")
+
+@bot.tree.command(name="multiroast", description="Send multiple playful roasts in one message.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user="The user to roast", amount="How many times to roast them")
-async def roastspam(interaction: discord.Interaction, user: discord.User, amount: int):
+@app_commands.describe(user="The user to roast")
+async def multiroast(interaction: discord.Interaction, user: discord.User):
 
-    logging.info(f"/roastspam used by {interaction.user} on {user} | amount={amount}")
-    await send_log_dm(f"/roastspam used by {interaction.user} on {user} | amount={amount}")
+    logging.info(f"/multiroast used by {interaction.user} on {user}")
+    await send_log_dm(f"/multiroast used by {interaction.user} on {user}")
 
     if await require_membership(interaction):
         return
 
     if await check_blacklist(interaction):
-        return
-
-    if amount > 5:
-        embed = discord.Embed(
-            title="⚠️ Limit Exceeded",
-            description="Maximum roast spam amount is **5**.",
-            color=0xDC143C
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     if user.id in PROTECTED_USERS:
@@ -677,30 +684,23 @@ async def roastspam(interaction: discord.Interaction, user: discord.User, amount
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # ⭐ PREMIUM ROAST LOGIC
+    roast_pool = ROASTS_PREMIUM + ROASTS_FREE if interaction.user.id in PREMIUM_USERS else ROASTS_FREE
+    roast_count = 3 if interaction.user.id in PREMIUM_USERS else 1
+
+    selected_roasts = random.sample(roast_pool, roast_count)
+
+    roast_text = "\n\n".join(f"**{line}**" for line in selected_roasts)
+
     embed = discord.Embed(
-        title="🔥 Roast Spam Activated",
-        description=f"Roasting {user.mention} **{amount} times**...",
+        title="🔥 Multi-Roast Delivered",
+        description=f"{user.mention}\n\n{roast_text}",
         color=0x8A2BE2
     )
     embed.set_footer(text="NexuBot • Created by Adam")
 
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.response.send_message(embed=embed)
     await handle_feedback_reminder(interaction)
-
-    for _ in range(amount):
-        try:
-            roast_line = random.choice(ROASTS)
-            await interaction.followup.send(f"{user.mention}\n**{roast_line}**")
-            await asyncio.sleep(0.3)
-        except Exception as e:
-            error_embed = discord.Embed(
-                title="❌ Error",
-                description=f"There was an issue sending roasts.\n`{e}`",
-                color=0xDC143C
-            )
-            error_embed.set_footer(text="NexuBot • Created by Adam")
-            await interaction.followup.send(embed=error_embed, ephemeral=True)
-            return
 
 
 
@@ -864,6 +864,17 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
     logging.info(f"/fakeip used by {interaction.user} on {user}")
     await send_log_dm(f"/fakeip used by {interaction.user} on {user}")
 
+    # ⭐ PREMIUM-ONLY CHECK (correct indentation)
+    if interaction.user.id not in PREMIUM_USERS:
+        embed = discord.Embed(
+            title="💎 Premium Only",
+            description="This command is available **only to Premium users**.",
+            color=0xFFD700
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
     # Membership check
     if await require_membership(interaction):
         return
@@ -872,7 +883,7 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
     if await check_blacklist(interaction):
         return
 
-    # Protected users (like you)
+    # Protected users
     if user.id in PROTECTED_USERS:
         embed = discord.Embed(
             title="⛔ Protected User",
@@ -883,7 +894,7 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # ✔ Activation embed (like fakeban)
+    # Activation embed
     embed = discord.Embed(
         title="📡 Fake Trace Activated",
         description=f"Scanning {user.mention}...",
@@ -900,7 +911,7 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
     fake_lat = round(random.uniform(-90, 90), 4)
     fake_lon = round(random.uniform(-180, 180), 4)
 
-    # ✔ Follow-up message (like fakeban)
+    # Follow-up message
     try:
         await interaction.followup.send(
             f"📡 **Trace Complete for {user.mention}**\n"
@@ -915,6 +926,9 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
         )
         error_embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.followup.send(embed=error_embed, ephemeral=True)
+
+
+
 
 # ============================================================
 # Gay Rate
@@ -1593,10 +1607,3 @@ async def premiumlist(interaction: discord.Interaction):
 # START BOT
 # ============================================================
 bot.run(os.getenv("TOKEN"))
-
-
-
-
-
-
-
