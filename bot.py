@@ -168,48 +168,6 @@ async def on_ready():
 
 
 # ============================================================
-# GENERAL COMMANDS
-# ============================================================
-@bot.tree.command(name="hello", description="Say hello")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-async def hello(interaction: discord.Interaction):
-
-    logging.info(f"/hello used by {interaction.user}")
-    await send_log_dm(f"/hello used by {interaction.user}")
-
-    if await require_membership(interaction):
-        return
-
-    if await check_blacklist(interaction):
-        return
-
-    await handle_feedback_reminder(interaction)
-
-    embed = discord.Embed(
-        title="👋 Hello!",
-        description="Hope you're having a great day.",
-        color=0x00FFFF
-    )
-    embed.set_footer(text="NexuBot • Created by Adam")
-
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-@bot.tree.command(name="premiumfeature")
-async def premiumfeature(interaction):
-    if await require_membership(interaction):
-        return
-    if await check_blacklist(interaction):
-        return
-    if await require_premium(interaction):
-        return
-
-    await interaction.response.send_message("You are premium!")
-
-
-
-# ============================================================
 # SPAM COMMANDS
 # ============================================================
 @bot.tree.command(name="burst", description="spam a message! 10 max for premium 5 for normal.")
@@ -866,16 +824,6 @@ async def fakeip(interaction: discord.Interaction, user: discord.User):
     logging.info(f"/fakeip used by {interaction.user} on {user}")
     await send_log_dm(f"/fakeip used by {interaction.user} on {user}")
 
-    # ⭐ PREMIUM-ONLY CHECK (correct indentation)
-    if interaction.user.id not in PREMIUM_USERS:
-        embed = discord.Embed(
-            title="💎 Premium Only",
-            description="This command is available **only to Premium users**.",
-            color=0xFFD700
-        )
-        embed.set_footer(text="NexuBot • Created by Adam")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
 
     # Membership check
     if await require_membership(interaction):
@@ -1174,27 +1122,43 @@ async def help_command(interaction: discord.Interaction):
 
     embed.add_field(
         name="👋 General",
-        value="**/hello** — Say hello\n**/help** — Show this help menu",
+        value=(
+            "**/hello** — Say hello\n"
+            "**/help** — Show this help menu"
+        ),
         inline=False
     )
 
     embed.add_field(
         name="💬 Messaging",
         value=(
-            "**/burst** — Spam a message\n"
-            "**/spamcoinflip** — Coinflip spam\n"
-            "**/pingspam** — Spam ping a user\n"
-            "**/ghostpingspam** — Ghost ping a user\n"
-            "**/dmtroll** — Fake DM spam"
-            "**/RickRoll** — Flood the chat with a rick roll"
-            "**/Fakeban** — Fake Ban a user\n"
+            "**/burst** — Send a burst-style message\n"
+            "**/spamcoinflip** — Fun coinflip message generator\n"
+            "**/pingspam** — Send a single playful ping message\n"
+            "**/dmtroll** — Send a playful fake DM message\n"
+            "**/rickroll** — Send a fun rickroll message\n"
+            "**/fakeban** — Fake-ban a user for fun"
         ),
         inline=False
     )
 
     embed.add_field(
         name="🔥 Roasting",
-        value="**/roast** — Roast a user\n**/roastspam** — Spam roasts",
+        value=(
+            "**/roast** — Send a playful roast\n"
+            "**/multiroast** — Send multiple roasts in one message"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="💎 Premium",
+        value=(
+            "**/multispam** — Send multiple messages in one combined output\n"
+            "**/ipgrab** — Generate a playful fake IP + coordinates\n"
+            "**Premium Boost:** Premium users get higher limits on supported commands\n"
+            "**/multiroast** — Enhanced multi-roast for premium users"
+        ),
         inline=False
     )
 
@@ -1202,11 +1166,14 @@ async def help_command(interaction: discord.Interaction):
         name="🛠️ Admin Commands",
         value=(
             "**/blacklist** — Blacklist a user\n"
-            "**/unblacklist** — Remove blacklist\n"
+            "**/unblacklist** — Remove a user from blacklist\n"
             "**/blacklistlist** — View blacklist\n"
-            "**/adminadd** — Add admin\n"
-            "**/adminremove** — Remove admin\n"
-            "**/adminlist** — List admins"
+            "**/adminadd** — Add an admin\n"
+            "**/adminremove** — Remove an admin\n"
+            "**/adminlist** — List all admins\n"
+            "**/premiumadd** — Add a user to premium\n"
+            "**/premiumremove** — Remove a user from premium\n"
+            "**/premiumlist** — View all premium users"
         ),
         inline=False
     )
@@ -1214,6 +1181,7 @@ async def help_command(interaction: discord.Interaction):
     embed.set_footer(text="NexuBot • Created by Adam")
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 
 
