@@ -1132,12 +1132,13 @@ async def help_command(interaction: discord.Interaction):
     embed.add_field(
         name="💬 Messaging",
         value=(
-            "**/burst** — Send a burst-style message\n"
+            "**/burst** — Spam messages\n"
             "**/spamcoinflip** — Fun coinflip message generator\n"
-            "**/pingspam** — Send a single playful ping message\n"
-            "**/dmtroll** — Send a playful fake DM message\n"
-            "**/rickroll** — Send a fun rickroll message\n"
-            "**/fakeban** — Fake-ban a user for fun"
+            "**/pingspam** — Spam ping a user\n"
+            "**/dmtroll** — Flood a persons dms and troll them\n"
+            "**/rickroll** — Flood the chat with rick roll\n"
+            "**/ipgrab** — Generate a playful fake IP + coordinates\n"
+            "**/fakeban** — Fake ban a user"
         ),
         inline=False
     )
@@ -1155,7 +1156,6 @@ async def help_command(interaction: discord.Interaction):
         name="💎 Premium",
         value=(
             "**/multispam** — Send multiple messages in one combined output\n"
-            "**/ipgrab** — Generate a playful fake IP + coordinates\n"
             "**Premium Boost:** Premium users get higher limits on supported commands\n"
             "**/multiroast** — Enhanced multi-roast for premium users"
         ),
