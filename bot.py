@@ -110,18 +110,10 @@ async def require_membership(interaction: discord.Interaction):
 
     return False
 
-
-
 async def require_premium(interaction: discord.Interaction):
-    guild = interaction.guild
 
-    # Allow in DMs
-    if guild is None:
-        return False
-
-    # If bot can't see the member, allow
-    member = guild.get_member(interaction.user.id)
-    if member is None:
+    # Allow in DMs only
+    if interaction.guild is None:
         return False
 
     # If user is premium, allow
