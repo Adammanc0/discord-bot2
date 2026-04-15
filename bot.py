@@ -164,13 +164,16 @@ async def on_ready():
 # ============================================================
 # SPAM COMMANDS
 # ============================================================
-@bot.tree.command(name="burst", description="spam a message! 10 max for premium 5 for normal.")
+@bot.tree.command(
+    name="burst",
+    description="Send a fun burst-style message (Premium: 10 max, Normal: 5 max)."
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(
     message="The message to send",
-    amount="How many times to send it",
-    blame="(Optional) Tag someone to blame"
+    amount="How many times to include it",
+    blame="(Optional) Tag someone playfully"
 )
 async def burst(
     interaction: discord.Interaction,
@@ -190,7 +193,7 @@ async def burst(
     if await check_blacklist(interaction):
         return
 
-    # ⭐ PREMIUM LIMIT LOGIC
+    # Premium limit logic
     max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
 
     if amount > max_amount:
@@ -203,35 +206,25 @@ async def burst(
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # Optional blame text
-    blame_text = f" — RAIDED BY {blame.mention}" if blame else ""
+    # Optional playful tag
+    blame_text = f" — sent with love to {blame.mention}" if blame else ""
 
     # Activation embed
     embed = discord.Embed(
-        title="💥 Burst Activated",
-        description=f"Sending your message **{amount} times**!{blame_text}",
+        title="💥 Burst Ready",
+        description=f"Sending your burst with **{amount} repeats**!{blame_text}",
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
-
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
 
-    # Send the burst messages
-    for _ in range(amount):
-        try:
-            await interaction.followup.send(f"{message}{blame_text}")
-            await asyncio.sleep(0.3)
-        except:
-            error_embed = discord.Embed(
-                title="❌ Error",
-                description="There was an issue sending your burst messages.",
-                color=0xDC143C
-            )
-            error_embed.set_footer(text="NexuBot • Created by Adam")
-            await interaction.followup.send(embed=error_embed, ephemeral=True)
-            return
+    # Build a single combined message instead of spamming
+    combined = "\n".join([f"{message}{blame_text}" for _ in range(amount)])
+
+    await interaction.channel.send(combined)
+
 
 
 
