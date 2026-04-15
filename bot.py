@@ -1624,6 +1624,61 @@ async def premiumlist(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+@bot.tree.command(name="premiumprofile", description="View your NexuBot Premium profile card.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def premiumprofile(interaction: discord.Interaction):
+
+    logging.info(f"/premiumprofile viewed by {interaction.user}")
+    await send_log_dm(f"/premiumprofile viewed by {interaction.user}")
+
+    if await require_membership(interaction):
+        return
+
+    # Require Premium
+    if interaction.user.id not in PREMIUM_USERS:
+        embed = discord.Embed(
+            title="🔒 Premium Required",
+            description="You need **NexuBot Premium** to view your profile card.",
+            color=0xFFD700
+        )
+        embed.set_footer(text="NexuBot • Premium Access")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Build profile card
+    embed = discord.Embed(
+        title="💎 NexuBot Premium Profile",
+        description=f"Here’s your Premium status, {interaction.user.mention}!",
+        color=0xFFD700
+    )
+
+    embed.set_thumbnail(url=interaction.user.avatar.url if interaction.user.avatar else None)
+
+    embed.add_field(
+        name="✨ Premium Status",
+        value="**Active**",
+        inline=False
+    )
+
+    embed.add_field(
+        name="🏅 Premium Badge",
+        value="`GOLD MEMBER`",
+        inline=False
+    )
+
+    embed.add_field(
+        name="🎨 Theme",
+        value="Default Gold (more themes coming soon!)",
+        inline=False
+    )
+
+    embed.set_footer(text="NexuBot • Premium User")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+
 
 # ============================================================
 # START BOT
