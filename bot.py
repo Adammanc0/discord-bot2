@@ -525,8 +525,6 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
 
-w
-
 
 
 
