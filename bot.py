@@ -1663,7 +1663,7 @@ async def premiumprofile(interaction: discord.Interaction):
 
     embed.add_field(
         name="🏅 Premium Badge",
-        value="`GOLD MEMBER`",
+        value="`=Premium Member`",
         inline=False
     )
 
