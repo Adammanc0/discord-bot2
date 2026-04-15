@@ -247,22 +247,30 @@ async def burst(
 
 
 
-@bot.tree.command(name="spamcoinflip", description="Flip a coin to decide if the bot spams your message 1-5.")
+@bot.tree.command(
+    name="spamcoinflip",
+    description="Flip a coin to decide if the bot sends your message a few times."
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(message="The message to send", amount="How many times to send it")
+@app_commands.describe(
+    message="The message to send",
+    amount="How many times to send it"
+)
 async def spamcoinflip(interaction: discord.Interaction, message: str, amount: int):
 
     logging.info(f"/spamcoinflip used by {interaction.user} | amount={amount}")
     await send_log_dm(f"/spamcoinflip used by {interaction.user} | amount={amount}")
 
+    # Membership check
     if await require_membership(interaction):
         return
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # ⭐ PREMIUM LIMIT LOGIC
+    # Premium limit logic
     max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
 
     if amount > max_amount:
@@ -275,21 +283,23 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Coinflip
     result = random.choice(["heads", "tails"])
 
     if result == "tails":
         embed = discord.Embed(
             title="🪙 Coinflip Result: Tails",
-            description="No spam this time.",
+            description="No messages this time.",
             color=0x2F3136
         )
         embed.set_footer(text="NexuBot • Created by Adam")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Heads result
     embed = discord.Embed(
         title="🪙 Coinflip Result: Heads!",
-        description=f"Spamming `{message}` **{amount} times**!",
+        description=f"Sending your message **{amount} times**!",
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
@@ -297,36 +307,46 @@ async def spamcoinflip(interaction: discord.Interaction, message: str, amount: i
 
     await handle_feedback_reminder(interaction)
 
+    # Send messages safely
     for _ in range(amount):
         try:
             await interaction.followup.send(message)
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(0.6)  # gentle delay to avoid dropped messages
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
-                description="There was an issue sending your spam messages.",
+                description="There was an issue sending your messages.",
                 color=0xDC143C
             )
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
 
-@bot.tree.command(name="embedspam", description="Spam an embed message multiple times 1-5.")
+
+@bot.tree.command(
+    name="embedspam",
+    description="Send a fun embed multiple times (Premium: 10 max, Normal: 5 max)."
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(message="The message to put in the embed", amount="How many embeds to send")
+@app_commands.describe(
+    message="The message to put in the embed",
+    amount="How many embeds to send"
+)
 async def embedspam(interaction: discord.Interaction, message: str, amount: int):
 
     logging.info(f"/embedspam used by {interaction.user} | amount={amount}")
     await send_log_dm(f"/embedspam used by {interaction.user} | amount={amount}")
 
+    # Membership check
     if await require_membership(interaction):
         return
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # ⭐ PREMIUM LIMIT LOGIC (correct indentation)
+    # Premium limit logic
     max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
 
     if amount > max_amount:
@@ -339,6 +359,7 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Confirmation embed
     confirm = discord.Embed(
         title="📨 Embed Spam Activated",
         description=f"Sending your embed **{amount} times**!",
@@ -349,6 +370,7 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
 
     await handle_feedback_reminder(interaction)
 
+    # Send embeds safely
     for i in range(amount):
         try:
             emb = discord.Embed(
@@ -357,8 +379,10 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
                 color=0x00FFFF
             )
             emb.set_footer(text=f"NexuBot • Created by Adam • #{i+1}")
+
             await interaction.followup.send(embed=emb)
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(0.6)  # gentle delay to avoid dropped messages
+
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
@@ -368,6 +392,7 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
+
 
 
 @bot.tree.command(name="gifspam", description="Spam a GIF multiple times 1-5.")
