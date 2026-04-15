@@ -395,22 +395,30 @@ async def embedspam(interaction: discord.Interaction, message: str, amount: int)
 
 
 
-@bot.tree.command(name="gifspam", description="Spam a GIF multiple times 1-5.")
+@bot.tree.command(
+    name="gifspam",
+    description="Send a fun GIF multiple times (Premium: 10 max, Normal: 5 max)."
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(gif_url="Direct link to the GIF", amount="How many times to send it")
+@app_commands.describe(
+    gif_url="Direct link to the GIF",
+    amount="How many times to send it"
+)
 async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
     logging.info(f"/gifspam used by {interaction.user} | amount={amount}")
     await send_log_dm(f"/gifspam used by {interaction.user} | amount={amount}")
 
+    # Membership check
     if await require_membership(interaction):
         return
 
+    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # ⭐ PREMIUM LIMIT LOGIC
+    # Premium limit logic
     max_amount = 10 if interaction.user.id in PREMIUM_USERS else 5
 
     if amount > max_amount:
@@ -423,6 +431,7 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Confirmation embed
     confirm = discord.Embed(
         title="🖼️ GIF Spam Activated",
         description=f"Sending your GIF **{amount} times**!",
@@ -433,10 +442,11 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
     await handle_feedback_reminder(interaction)
 
+    # Send GIFs safely
     for i in range(amount):
         try:
             await interaction.followup.send(gif_url)
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(0.6)  # gentle delay to avoid dropped messages
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
@@ -452,10 +462,11 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
 
 
+
 # ============================================================
 # PING COMMANDS
 # ============================================================
-@bot.tree.command(name="pingspam", description="Spam ping a user multiple times.")
+@bot.tree.command(name="spamping", description="Spam ping a user multiple times.")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user="The user to ping", amount="How many times to ping them")
@@ -500,14 +511,14 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
 
     await handle_feedback_reminder(interaction)
 
-    for _ in range(amount):
+     for i in range(amount):
         try:
-            await interaction.followup.send(user.mention)
-            await asyncio.sleep(0.3)
+            await interaction.followup.send(gif_url)
+            await asyncio.sleep(0.6)  # gentle delay to avoid dropped messages
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
-                description="There was an issue sending pings.",
+                description="There was an issue sending your GIFs.",
                 color=0xDC143C
             )
             error_embed.set_footer(text="NexuBot • Created by Adam")
