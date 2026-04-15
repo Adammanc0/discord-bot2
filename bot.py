@@ -220,10 +220,21 @@ async def burst(
 
     await handle_feedback_reminder(interaction)
 
-    # Build a single combined message instead of spamming
-    combined = "\n".join([f"{message}{blame_text}" for _ in range(amount)])
+    # Send each message safely
+    for _ in range(amount):
+        try:
+            await interaction.followup.send(f"{message}{blame_text}")
+            await asyncio.sleep(0.6)  # gentle delay so Discord doesn't drop messages
+        except:
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your burst messages.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            return
 
-    await interaction.channel.send(combined)
 
 
 
