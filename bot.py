@@ -1050,7 +1050,7 @@ async def multispam(interaction: discord.Interaction, messages: str, amount: int
         for msg in parts:
             try:
                 await interaction.followup.send(msg)
-                await asyncio.sleep(0.3)
+                await asyncio.sleep(0.6)
             except:
                 error_embed = discord.Embed(
                     title="❌ Error",
