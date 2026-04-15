@@ -518,7 +518,7 @@ async def pingspam(interaction: discord.Interaction, user: discord.User, amount:
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
-                description="There was an issue sending your GIFs.",
+                description="There was an issue pinging.",
                 color=0xDC143C
             )
             error_embed.set_footer(text="NexuBot • Created by Adam")
@@ -577,7 +577,7 @@ async def ghostpingspam(interaction: discord.Interaction, user: discord.User, am
         try:
             msg = await interaction.followup.send(user.mention)
             await msg.delete()
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.6)
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
