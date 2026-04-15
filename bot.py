@@ -128,6 +128,11 @@ async def require_premium(interaction: discord.Interaction):
         return True
     return False
 
+with open("premium.json", "r") as f:
+    data = json.load(f)
+    PREMIUM_USERS = data.get("premium_users", [])
+
+
 
 
 
@@ -1509,7 +1514,11 @@ async def premiumadd(interaction: discord.Interaction, user: discord.User):
         return
 
     # Add user to premium list
-    PREMIUM_USERS.add(user.id)
+    PREMIUM_USERS.append(user.id)
+
+    # ⭐ SAVE UPDATED LIST TO FILE
+    with open("premium.json", "w") as f:
+        json.dump({"premium_users": PREMIUM_USERS}, f, indent=4)
 
     embed = discord.Embed(
         title="💎 Premium Granted",
@@ -1518,6 +1527,7 @@ async def premiumadd(interaction: discord.Interaction, user: discord.User):
     )
     embed.set_footer(text="NexuBot • Created by Adam")
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 
 @bot.tree.command(name="premiumremove", description="Remove NexuBot Premium access from a user.")
@@ -1553,7 +1563,12 @@ async def premiumremove(interaction: discord.Interaction, user: discord.User):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Remove user from premium list
     PREMIUM_USERS.remove(user.id)
+
+    # ⭐ SAVE UPDATED LIST TO FILE
+    with open("premium.json", "w") as f:
+        json.dump({"premium_users": PREMIUM_USERS}, f, indent=4)
 
     embed = discord.Embed(
         title="💎 Premium Removed",
@@ -1562,6 +1577,7 @@ async def premiumremove(interaction: discord.Interaction, user: discord.User):
     )
     embed.set_footer(text="NexuBot • Created by Adam")
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 
 @bot.tree.command(name="premiumlist", description="View all users with NexuBot Premium access.")
