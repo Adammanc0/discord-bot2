@@ -465,6 +465,79 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
             return
 
 
+@bot.tree.command(
+    name="bigburst",
+    description="Send BIG TEXT in a burst. Premium users get up to 10 messages."
+)
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(
+    text="The text to convert into BIG TEXT",
+    amount="How many times to send it"
+)
+async def bigburst(
+    interaction: discord.Interaction,
+    text: str,
+    amount: int
+):
+
+    logging.info(f"/bigburst used by {interaction.user} | amount={amount}")
+    await send_log_dm(f"/bigburst used by {interaction.user} | amount={amount}")
+
+    # Membership check
+    if await require_membership(interaction):
+        return
+
+    # Blacklist check
+    if await check_blacklist(interaction):
+        return
+
+    # Convert to big text
+    def to_big(s):
+        return "".join(chr(ord(c) + 0xFEE0) if 33 <= ord(c) <= 126 else c for c in s)
+
+    big = to_big(text)
+
+    # Premium limit logic
+    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 3
+
+    if amount > max_amount:
+        embed = discord.Embed(
+            title="⚠️ Limit Exceeded",
+            description=f"Your maximum big text burst is **{max_amount}**.",
+            color=0xDC143C
+        )
+        embed.set_footer(text="NexuBot • Created by Adam")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Activation embed
+    embed = discord.Embed(
+        title="💥 Big Text Burst",
+        description=f"Sending **{amount}** BIG TEXT messages!",
+        color=0x39FF14
+    )
+    embed.set_footer(text="NexuBot • Created by Adam")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    await handle_feedback_reminder(interaction)
+
+    # Send each message safely
+    for _ in range(amount):
+        try:
+            await interaction.followup.send(big)
+            await asyncio.sleep(0.6)  # safe delay to avoid rate limits
+        except:
+            error_embed = discord.Embed(
+                title="❌ Error",
+                description="There was an issue sending your big text burst.",
+                color=0xDC143C
+            )
+            error_embed.set_footer(text="NexuBot • Created by Adam")
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            return
+
+
 
 
 
@@ -1676,72 +1749,6 @@ async def premiumprofile(interaction: discord.Interaction):
     embed.set_footer(text="NexuBot • Premium User")
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
-
-@bot.tree.command(
-    name="spambigtext",
-    description="Spam a message in BIG TEXT. Premium users can use # for colour mode."
-)
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(text="The text to turn into BIG TEXT", colour="Optional colour for Premium Mode")
-async def spambigtext(interaction: discord.Interaction, text: str, colour: str = None):
-
-    logging.info(f"/spambigtext used by {interaction.user}")
-    await send_log_dm(f"/spambigtext used by {interaction.user}: {text}")
-
-    if await require_membership(interaction):
-        return
-
-    # Convert to big text using Unicode fullwidth characters
-    def to_big(s):
-        return "".join(chr(ord(c) + 0xFEE0) if 33 <= ord(c) <= 126 else c for c in s)
-
-    # Check for Premium Mode (# prefix)
-    premium_mode = text.startswith("#")
-
-    if premium_mode:
-        text = text[1:]  # remove '#'
-
-        # Require Premium
-        if await require_premium(interaction):
-            return
-
-    # Convert text
-    big = to_big(text)
-
-    # NORMAL MODE (3‑line burst)
-    if not premium_mode:
-        spam_output = f"{big}\n{big}\n{big}"
-        await interaction.response.send_message(spam_output, ephemeral=False)
-        return
-
-    # PREMIUM MODE (10‑line burst)
-    premium_burst = "\n".join([big] * 10)
-
-    # Colour map
-    colours = {
-        "gold": 0xFFD700,
-        "red": 0xFF5555,
-        "blue": 0x55AAFF,
-        "green": 0x55FF55,
-        "purple": 0xAA55FF,
-        "pink": 0xFF77CC,
-        "white": 0xFFFFFF,
-        "cyan": 0x00FFFF
-    }
-
-    chosen_colour = colours.get(colour.lower(), 0xFFD700) if colour else 0xFFD700
-
-    pretty_block = f"```\n{premium_burst}\n```"
-
-    embed = discord.Embed(
-        title="💎 Premium Big Text",
-        description=pretty_block,
-        color=chosen_colour
-    )
-    embed.set_footer(text="NexuBot • Premium Mode")
-
-    await interaction.response.send_message(embed=embed, ephemeral=False)
 
 
 
