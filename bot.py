@@ -1677,6 +1677,69 @@ async def premiumprofile(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@bot.tree.command(name="spambigtext", description="Spam a message in BIG TEXT. Premium users can use # for colour mode.")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(text="The text to turn into BIG TEXT", colour="Optional colour for Premium Mode")
+async def spambigtext(interaction: discord.Interaction, text: str, colour: str = None):
+
+    logging.info(f"/spambigtext used by {interaction.user}")
+    await send_log_dm(f"/spambigtext used by {interaction.user}: {text}")
+
+    if await require_membership(interaction):
+        return
+
+    # Convert to big text using Unicode fullwidth characters
+    def to_big(s):
+        return "".join(chr(ord(c) + 0xFEE0) if 33 <= ord(c) <= 126 else c for c in s)
+
+    # Check for Premium Mode (# prefix)
+    premium_mode = text.startswith("#")
+
+    if premium_mode:
+        # Remove the #
+        text = text[1:]
+
+        # Require Premium
+        if await require_premium(interaction):
+            return
+
+    big = to_big(text)
+
+    # Normal spam burst
+    spam_output = f"{big}\n{big}\n{big}"
+
+    # Premium Mode: colour themes
+    if premium_mode:
+
+        # Colour map
+        colours = {
+            "gold": 0xFFD700,
+            "red": 0xFF5555,
+            "blue": 0x55AAFF,
+            "green": 0x55FF55,
+            "purple": 0xAA55FF,
+            "pink": 0xFF77CC,
+            "white": 0xFFFFFF,
+            "cyan": 0x00FFFF
+        }
+
+        # Default colour if none chosen
+        chosen_colour = colours.get(colour.lower(), 0xFFD700) if colour else 0xFFD700
+
+        embed = discord.Embed(
+            title="💎 Premium Big Text",
+            description=spam_output,
+            color=chosen_colour
+        )
+        embed.set_footer(text="NexuBot • Premium Mode")
+
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+        return
+
+    # Normal mode (no premium)
+    await interaction.response.send_message(spam_output, ephemeral=False)
+
 
 
 
