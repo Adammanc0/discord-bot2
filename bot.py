@@ -467,39 +467,34 @@ async def gifspam(interaction: discord.Interaction, gif_url: str, amount: int):
 
 @bot.tree.command(
     name="bigburst",
-    description="Send BIG TEXT in a burst. Premium users get up to 10 messages."
+    description="Send BIG TEXT in a burst. Premium users get up to 10 messages + font styles."
 )
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(
-    text="The text to convert into BIG TEXT",
-    amount="How many times to send it"
+    text="The text to convert",
+    amount="How many times to send it",
+    style="Premium only: full, bold, cute, script"
 )
 async def bigburst(
     interaction: discord.Interaction,
     text: str,
-    amount: int
+    amount: int,
+    style: str = "full"
 ):
 
-    logging.info(f"/bigburst used by {interaction.user} | amount={amount}")
-    await send_log_dm(f"/bigburst used by {interaction.user} | amount={amount}")
+    logging.info(f"/bigburst used by {interaction.user} | amount={amount} | style={style}")
+    await send_log_dm(f"/bigburst used by {interaction.user} | amount={amount} | style={style}")
 
-    # Membership check
     if await require_membership(interaction):
         return
 
-    # Blacklist check
     if await check_blacklist(interaction):
         return
 
-    # Convert to big text
-    def to_big(s):
-        return "".join(chr(ord(c) + 0xFEE0) if 33 <= ord(c) <= 126 else c for c in s)
-
-    big = to_big(text)
-
-    # Premium limit logic
-    max_amount = 10 if interaction.user.id in PREMIUM_USERS else 3
+    # Premium logic
+    is_premium = interaction.user.id in PREMIUM_USERS
+    max_amount = 10 if is_premium else 3
 
     if amount > max_amount:
         embed = discord.Embed(
@@ -511,10 +506,16 @@ async def bigburst(
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Apply font
+    if is_premium:
+        big = apply_font(style.lower(), text)
+    else:
+        big = to_fullwidth(text)
+
     # Activation embed
     embed = discord.Embed(
         title="💥 Big Text Burst",
-        description=f"Sending **{amount}** BIG TEXT messages!",
+        description=f"Sending **{amount}** messages in **{style}** style!",
         color=0x39FF14
     )
     embed.set_footer(text="NexuBot • Created by Adam")
@@ -526,7 +527,7 @@ async def bigburst(
     for _ in range(amount):
         try:
             await interaction.followup.send(big)
-            await asyncio.sleep(0.6)  # safe delay to avoid rate limits
+            await asyncio.sleep(0.6)
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
@@ -536,8 +537,6 @@ async def bigburst(
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
-
-
 
 
 
