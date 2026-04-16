@@ -1677,7 +1677,10 @@ async def premiumprofile(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="spambigtext", description="Spam a message in BIG TEXT. Premium users can use # for colour mode.")
+@bot.tree.command(
+    name="spambigtext",
+    description="Spam a message in BIG TEXT. Premium users can use # for colour mode."
+)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(text="The text to turn into BIG TEXT", colour="Optional colour for Premium Mode")
@@ -1697,48 +1700,54 @@ async def spambigtext(interaction: discord.Interaction, text: str, colour: str =
     premium_mode = text.startswith("#")
 
     if premium_mode:
-        # Remove the #
-        text = text[1:]
 
-        # Require Premium
-        if await require_premium(interaction):
-            return
+    # 10-line premium burst
+    premium_burst = "\n".join([big] * 10)
 
-    big = to_big(text)
+    pretty_block = f"```\n{premium_burst}\n```"
 
-    # Normal spam burst
-    spam_output = f"{big}\n{big}\n{big}"
+    embed = discord.Embed(
+        title="💎 Premium Big Text",
+        description=pretty_block,
+        color=chosen_colour
+    )
+    embed.set_footer(text="NexuBot • Premium Mode")
 
-    # Premium Mode: colour themes
-    if premium_mode:
+    await interaction.response.send_message(embed=embed)
+    return
 
-        # Colour map
-        colours = {
-            "gold": 0xFFD700,
-            "red": 0xFF5555,
-            "blue": 0x55AAFF,
-            "green": 0x55FF55,
-            "purple": 0xAA55FF,
-            "pink": 0xFF77CC,
-            "white": 0xFFFFFF,
-            "cyan": 0x00FFFF
-        }
 
-        # Default colour if none chosen
-        chosen_colour = colours.get(colour.lower(), 0xFFD700) if colour else 0xFFD700
-
-        embed = discord.Embed(
-            title="💎 Premium Big Text",
-            description=spam_output,
-            color=chosen_colour
-        )
-        embed.set_footer(text="NexuBot • Premium Mode")
-
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+    # Normal mode (3-line burst)
+    if not premium_mode:
+        spam_output = f"{big}\n{big}\n{big}"
+        await interaction.response.send_message(spam_output, ephemeral=False)
         return
 
-    # Normal mode (no premium)
-    await interaction.response.send_message(spam_output, ephemeral=False)
+    # Premium Mode: clean centred aesthetic block
+    pretty_block = f"```\n   {big}\n```"
+
+    # Colour map
+    colours = {
+        "gold": 0xFFD700,
+        "red": 0xFF5555,
+        "blue": 0x55AAFF,
+        "green": 0x55FF55,
+        "purple": 0xAA55FF,
+        "pink": 0xFF77CC,
+        "white": 0xFFFFFF,
+        "cyan": 0x00FFFF
+    }
+
+    chosen_colour = colours.get(colour.lower(), 0xFFD700) if colour else 0xFFD700
+
+    embed = discord.Embed(
+        title="💎 Premium Big Text",
+        description=pretty_block,
+        color=chosen_colour
+    )
+    embed.set_footer(text="NexuBot • Premium Mode")
+
+    await interaction.response.send_message(embed=embed, ephemeral=False)
 
 
 
