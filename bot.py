@@ -1700,31 +1700,23 @@ async def spambigtext(interaction: discord.Interaction, text: str, colour: str =
     premium_mode = text.startswith("#")
 
     if premium_mode:
+        text = text[1:]  # remove '#'
 
-    # 10-line premium burst
-    premium_burst = "\n".join([big] * 10)
+        # Require Premium
+        if await require_premium(interaction):
+            return
 
-    pretty_block = f"```\n{premium_burst}\n```"
+    # Convert text
+    big = to_big(text)
 
-    embed = discord.Embed(
-        title="💎 Premium Big Text",
-        description=pretty_block,
-        color=chosen_colour
-    )
-    embed.set_footer(text="NexuBot • Premium Mode")
-
-    await interaction.response.send_message(embed=embed)
-    return
-
-
-    # Normal mode (3-line burst)
+    # NORMAL MODE (3‑line burst)
     if not premium_mode:
         spam_output = f"{big}\n{big}\n{big}"
         await interaction.response.send_message(spam_output, ephemeral=False)
         return
 
-    # Premium Mode: clean centred aesthetic block
-    pretty_block = f"```\n   {big}\n```"
+    # PREMIUM MODE (10‑line burst)
+    premium_burst = "\n".join([big] * 10)
 
     # Colour map
     colours = {
@@ -1740,6 +1732,8 @@ async def spambigtext(interaction: discord.Interaction, text: str, colour: str =
 
     chosen_colour = colours.get(colour.lower(), 0xFFD700) if colour else 0xFFD700
 
+    pretty_block = f"```\n{premium_burst}\n```"
+
     embed = discord.Embed(
         title="💎 Premium Big Text",
         description=pretty_block,
@@ -1748,6 +1742,7 @@ async def spambigtext(interaction: discord.Interaction, text: str, colour: str =
     embed.set_footer(text="NexuBot • Premium Mode")
 
     await interaction.response.send_message(embed=embed, ephemeral=False)
+
 
 
 
