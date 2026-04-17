@@ -542,6 +542,7 @@ async def bigburst(
 
 
 
+
 # ============================================================
 # PING COMMANDS
 # ============================================================
@@ -1206,6 +1207,66 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
         return
 
     await handle_feedback_reminder(interaction)
+
+# ============================================================
+# Fake Message
+# ============================================================
+@bot.tree.command(
+    name="fakemessage",
+    description="Make a fake message."
+)
+@app_commands.describe(
+    display_name="Name to show on the fake message",
+    text="The fake message content",
+    theme="Visual theme: default, dark, neon",
+    togif="Send as 'gif-style"
+)
+async def fakemessage(
+    interaction: discord.Interaction,
+    display_name: str,
+    text: str,
+    theme: str = "default",
+    togif: bool = False
+):
+
+    logging.info(f"/fakemessage used by {interaction.user} | name={display_name} | theme={theme} | togif={togif}")
+    await send_log_dm(f"/fakemessage used by {interaction.user} | name={display_name} | theme={theme} | togif={togif}")
+
+    if await require_membership(interaction):
+        return
+
+    if await check_blacklist(interaction):
+        return
+
+    theme = theme.lower()
+    colours = {
+        "default": 0x2F3136,
+        "dark": 0x1E1F22,
+        "neon": 0x39FF14
+    }
+    colour = colours.get(theme, colours["default"])
+
+    # Clearly mark as fake
+    title = f"🧪 Fake Message Preview"
+    author_line = f"{display_name}"
+
+    embed = discord.Embed(
+        title=title,
+        description=text,
+        color=colour
+    )
+    embed.set_author(name=author_line)
+    embed.set_footer(text="This is a generated mock message • Not real")
+
+    if togif:
+        embed.add_field(
+            name="GIF Style",
+            value="This message is styled as a 'gif-style' mock (visual only).",
+            inline=False
+        )
+
+    await interaction.response.send_message(embed=embed, ephemeral=False)
+
 
 
 # ============================================================
