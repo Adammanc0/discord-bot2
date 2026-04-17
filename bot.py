@@ -1212,37 +1212,33 @@ async def dmtroll(interaction: discord.Interaction, user: discord.User):
 # Fake Message
 # ============================================================
 @bot.tree.command(
-    name="fakemessage",
-    description="Generate a clearly fake message preview."
+    name="rpc",
+    description="Generate a fake RPC-style game status card."
 )
 @app_commands.describe(
-    name="The display name to show (fake)",
-    text="The message content",
-    theme="Theme: default, dark, neon",
-    time="Fake timestamp to display"
+    game="The game name to display (fake)",
+    details="What you're 'doing' in the game",
+    state="Extra status line",
+    time="Fake timer (e.g., 00:12:45)"
 )
-async def fakemessage(
+async def rpc(
     interaction: discord.Interaction,
-    name: str,
-    text: str,
-    theme: str = "default",
-    time: str = "5:32 PM"
+    game: str,
+    details: str = "In Menu",
+    state: str = "Playing",
+    time: str = "00:00:00"
 ):
 
-    # Themes
-    colours = {
-        "default": 0x2F3136,
-        "dark": 0x1E1F22,
-        "neon": 0x39FF14
-    }
-    colour = colours.get(theme.lower(), colours["default"])
-
     embed = discord.Embed(
-        description=f"**{name} (FAKE)** — *{time}*\n{text}",
-        color=colour
+        title=f"🎮 {game} ",
+        description=f"**Details:** {details}\n**State:** {state}\n**Time:** {time}",
+        color=0x5865F2
     )
 
-    embed.set_footer(text="This is a fake preview • Not a real message")
+    embed.set_footer(text="This is an RPC preview • l")
+
+    # Optional: generic icon
+    embed.set_thumbnail(url="https://example.com/generic-game-icon.png")
 
     await interaction.response.send_message(embed=embed)
 
