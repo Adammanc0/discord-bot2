@@ -180,7 +180,7 @@ async def on_ready():
 @app_commands.describe(
     message="The message to send",
     amount="How many times to include it",
-    delay="Delay before sending (seconds, max 3600)",
+    delay="Delay between each message (seconds, max 3600)",
     blame="(Optional) Tag someone playfully"
 )
 async def burst(
@@ -237,16 +237,11 @@ async def burst(
 
     await handle_feedback_reminder(interaction)
 
-    # Optional delay before sending
-    if delay > 0:
-        await interaction.followup.send(f"⏳ Waiting **{delay} seconds** before sending...")
-        await asyncio.sleep(delay)
-
-    # Send each message safely
+    # Send each message with delay between them
     for _ in range(amount):
         try:
             await interaction.followup.send(f"{message}{blame_text}")
-            await asyncio.sleep(0.6)  # gentle delay so Discord doesn't drop messages
+            await asyncio.sleep(delay)  # delay between each message
         except:
             error_embed = discord.Embed(
                 title="❌ Error",
