@@ -180,17 +180,19 @@ async def on_ready():
 @app_commands.describe(
     message="The message to send",
     amount="How many times to include it",
+    delay="Delay before sending (seconds, max 3600)",
     blame="(Optional) Tag someone playfully"
 )
 async def burst(
     interaction: discord.Interaction,
     message: str,
     amount: int,
+    delay: int = 0,
     blame: discord.User | None = None
 ):
 
-    logging.info(f"/burst used by {interaction.user} | amount={amount} | blame={blame}")
-    await send_log_dm(f"/burst used by {interaction.user} | amount={amount} | blame={blame}")
+    logging.info(f"/burst used by {interaction.user} | amount={amount} | delay={delay} | blame={blame}")
+    await send_log_dm(f"/burst used by {interaction.user} | amount={amount} | delay={delay} | blame={blame}")
 
     # Membership check
     if await require_membership(interaction):
@@ -213,6 +215,14 @@ async def burst(
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Delay validation
+    if delay < 0 or delay > 3600:
+        await interaction.response.send_message(
+            "⏳ Delay must be between **0 and 3600 seconds** (1 hour).",
+            ephemeral=True
+        )
+        return
+
     # Optional playful tag
     blame_text = f" — sent with love to {blame.mention}" if blame else ""
 
@@ -226,6 +236,11 @@ async def burst(
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
     await handle_feedback_reminder(interaction)
+
+    # Optional delay before sending
+    if delay > 0:
+        await interaction.followup.send(f"⏳ Waiting **{delay} seconds** before sending...")
+        await asyncio.sleep(delay)
 
     # Send each message safely
     for _ in range(amount):
@@ -241,7 +256,6 @@ async def burst(
             error_embed.set_footer(text="NexuBot • Created by Adam")
             await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
-
 
 
 
